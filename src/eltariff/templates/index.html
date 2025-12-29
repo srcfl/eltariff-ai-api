@@ -711,7 +711,17 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
             const isPowerPrice = priceType === 'powerPrice';
 
             let rows = priceElement.components.map((comp, compIdx) => {
-                const unit = comp.unit || (priceType === 'fixedPrice' ? 'kr/mån' : '');
+                // Determine display unit
+                let displayUnit = '';
+                if (priceType === 'fixedPrice') {
+                    const period = comp.pricedPeriod;
+                    displayUnit = period === 'P1Y' ? 'kr/år' : 'kr/mån';
+                } else if (priceType === 'energyPrice') {
+                    displayUnit = 'kr/' + (comp.unit || 'kWh');
+                } else if (priceType === 'powerPrice') {
+                    const period = comp.pricedPeriod;
+                    displayUnit = period === 'P1Y' ? 'kr/kW/år' : 'kr/kW/mån';
+                }
                 return `
                 <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
                     <div class="flex-1">
@@ -723,7 +733,7 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                         <input type="number" step="0.01" value="${comp.price?.priceIncVat || 0}"
                                onchange="updateComponent(${tariffIdx}, '${priceType}', ${compIdx}, 'priceIncVat', parseFloat(this.value))"
                                class="w-24 text-right font-medium border border-gray-200 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-sourceful-green">
-                        <span class="text-xs text-gray-500 w-16">${unit}</span>
+                        <span class="text-xs text-gray-500 w-20">${displayUnit}</span>
                     </div>
                 </div>
             `}).join('');
@@ -868,13 +878,21 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
             try {
                 termLog('Skickar till server...', 'info');
 
-                // Simulate progress messages
+                // Two-step AI process progress messages
                 const progressMessages = [
                     { delay: 1500, msg: 'Hämtar webbsida...', type: 'info' },
                     { delay: 3000, msg: 'Extraherar text från innehåll...', type: 'info' },
-                    { delay: 5000, msg: 'Skickar till AI för analys...', type: 'ai' },
-                    { delay: 8000, msg: 'AI tolkar tariffstruktur...', type: 'ai' },
-                    { delay: 12000, msg: 'AI identifierar priskomponenter...', type: 'ai' },
+                    { delay: 5000, msg: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', type: 'info' },
+                    { delay: 5500, msg: 'STEG 1: Förbehandlar data (Sonnet)', type: 'ai' },
+                    { delay: 6500, msg: '  → Identifierar företag och tariffer...', type: 'ai' },
+                    { delay: 8000, msg: '  → Extraherar priser och avgifter...', type: 'ai' },
+                    { delay: 10000, msg: '  → Analyserar tidsregler...', type: 'ai' },
+                    { delay: 12000, msg: '  ✓ Steg 1 klar', type: 'success' },
+                    { delay: 13000, msg: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', type: 'info' },
+                    { delay: 13500, msg: 'STEG 2: Genererar RISE JSON (Opus)', type: 'ai' },
+                    { delay: 15000, msg: '  → Skapar tariffer för varje säkring...', type: 'ai' },
+                    { delay: 18000, msg: '  → Validerar RISE-format...', type: 'ai' },
+                    { delay: 22000, msg: '  → Slutför JSON-struktur...', type: 'ai' },
                 ];
 
                 const timeouts = progressMessages.map(p =>

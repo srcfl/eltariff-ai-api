@@ -177,35 +177,79 @@ class TariffParser:
             raise ValueError("Anthropic API key required")
         self.client = anthropic.Anthropic(api_key=self.api_key)
 
-    async def parse_text(self, text: str, company_name: str | None = None) -> TariffsResponse:
-        """Parse tariff information from text."""
-        # Truncate input if too long (keep most relevant parts)
+    async def parse_text(
+        self, text: str, company_name: str | None = None, progress_callback=None
+    ) -> TariffsResponse:
+        """Parse tariff information from text using two-step AI process.
+
+        Step 1 (Sonnet): Pre-process and structure the raw content
+        Step 2 (Opus): Generate precise RISE JSON with all tariffs
+        """
+        # Truncate input if too long
         max_input_chars = 50000
         if len(text) > max_input_chars:
-            # Keep beginning and end, as tariff info is often at the start
             text = text[:max_input_chars] + "\n\n[... innehåll trunkerat för längd ...]"
 
-        user_prompt = f"""Analysera följande tariffbeskrivning och konvertera till RISE JSON-format.
+        # ========== STEP 1: Pre-process with Sonnet ==========
+        if progress_callback:
+            progress_callback("step1_start", "Steg 1: Förbehandlar data med Sonnet...")
 
-VIKTIGT:
-- Returnera ENDAST giltig JSON, ingen annan text
-- Håll svaret kompakt - inkludera endast nödvändig information
-- Om ingen tariff hittas, returnera: {{"tariffs": []}}
+        step1_prompt = f"""Analysera följande text och extrahera ALL tariff-relaterad information på ett strukturerat sätt.
 
-{f"Företagsnamn: {company_name}" if company_name else ""}
+Din uppgift är att:
+1. Identifiera företagsnamn
+2. Lista ALLA tariffer/säkringsstorlekar som nämns (16A, 20A, 25A, etc.)
+3. Extrahera ALLA priser och avgifter
+4. Identifiera tidsregler (höglast/låglast, säsong, etc.)
+5. Identifiera effektavgifter och hur de beräknas
 
-Tariffbeskrivning:
+Formatera som strukturerad text, INTE JSON ännu.
+
+{f"Angivet företagsnamn: {company_name}" if company_name else ""}
+
+TEXT ATT ANALYSERA:
 {text}"""
 
-        response = self.client.messages.create(
+        step1_response = self.client.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=8192,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": user_prompt}],
+            max_tokens=4096,
+            messages=[{"role": "user", "content": step1_prompt}],
         )
 
-        # Extract JSON from response
-        content = response.content[0].text
+        structured_info = step1_response.content[0].text
+
+        if progress_callback:
+            progress_callback("step1_done", "Steg 1 klar: Data strukturerad")
+
+        # ========== STEP 2: Generate RISE JSON with Opus ==========
+        if progress_callback:
+            progress_callback("step2_start", "Steg 2: Genererar RISE JSON med Opus...")
+
+        step2_prompt = f"""Baserat på följande strukturerade tariff-information, generera komplett RISE JSON.
+
+VIKTIGT:
+- Skapa EN SEPARAT TARIFF för varje säkringsstorlek (16A, 20A, 25A, etc.)
+- Returnera ENDAST giltig JSON, ingen annan text
+- Inkludera calendarPatterns för weekdays, weekends, holidays
+
+STRUKTURERAD INFORMATION:
+{structured_info}
+
+ORIGINAL TEXT (för referens):
+{text[:10000]}"""
+
+        step2_response = self.client.messages.create(
+            model="claude-opus-4-20250514",
+            max_tokens=16384,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": step2_prompt}],
+        )
+
+        content = step2_response.content[0].text
+
+        if progress_callback:
+            progress_callback("step2_done", "Steg 2 klar: RISE JSON genererad")
+
         return self._parse_response(content)
 
     async def parse_pdf_content(
