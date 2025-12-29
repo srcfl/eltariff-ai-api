@@ -214,6 +214,39 @@ Tariffbeskrivning:
         """Parse tariff information from PDF text content."""
         return await self.parse_text(pdf_text, company_name)
 
+    async def improve_tariffs(
+        self, existing_tariffs: dict, instruction: str
+    ) -> TariffsResponse:
+        """Improve existing tariff data based on user instruction."""
+        existing_json = json.dumps(existing_tariffs, indent=2, ensure_ascii=False)
+
+        user_prompt = f"""Du har fått befintlig tariffdata i JSON-format och en instruktion från användaren.
+Din uppgift är att UPPDATERA tariffdata enligt instruktionen.
+
+VIKTIGT:
+- Behåll ALL befintlig data som inte explicit ska ändras
+- Returnera ENDAST giltig JSON i samma RISE-format
+- Om instruktionen är otydlig, gör ditt bästa för att tolka den
+- Behåll samma ID:n och struktur om möjligt
+
+BEFINTLIG TARIFFDATA:
+{existing_json}
+
+ANVÄNDARENS INSTRUKTION:
+{instruction}
+
+Returnera den uppdaterade tariffdata som komplett JSON (inkludera tariffs och calendarPatterns)."""
+
+        response = self.client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=8192,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": user_prompt}],
+        )
+
+        content = response.content[0].text
+        return self._parse_response(content)
+
     async def explain_tariff(self, tariff: Tariff) -> dict[str, Any]:
         """Generate a human-readable explanation of a tariff."""
         tariff_json = tariff.model_dump_json(by_alias=True, indent=2)

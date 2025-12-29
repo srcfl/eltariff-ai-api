@@ -937,22 +937,15 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
             termLog(`Instruktion: "${instruction}"`, 'info');
 
             try {
-                const formData = new FormData();
-                formData.append('text', `
-BEFINTLIG TARIFFDATA (JSON):
-${JSON.stringify(parsedTariffs, null, 2)}
-
-ANVÄNDARENS INSTRUKTION:
-${instruction}
-
-Uppdatera tariffdata enligt instruktionen ovan. Behåll all befintlig data som inte explicit ska ändras.
-                `);
-
                 termLog('Skickar till AI...', 'ai');
 
-                const response = await fetch('/api/parse/text', {
+                const response = await fetch('/api/parse/improve', {
                     method: 'POST',
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tariffs_json: JSON.stringify(parsedTariffs),
+                        instruction: instruction
+                    })
                 });
 
                 if (!response.ok) {

@@ -1,8 +1,10 @@
 """API endpoints for parsing tariff documents."""
 
+import json
 import os
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
+from pydantic import BaseModel
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -10,6 +12,12 @@ from ..models.rise_schema import TariffsResponse
 from ..services.ai_parser import TariffParser
 from ..services.pdf_parser import PDFParser
 from ..services.url_scraper import URLScraper
+
+
+class ImproveRequest(BaseModel):
+    """Request to improve existing tariff data."""
+    tariffs_json: str
+    instruction: str
 
 router = APIRouter(prefix="/api/parse", tags=["parse"])
 
@@ -225,3 +233,38 @@ async def parse_combined(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to parse: {str(e)}")
+
+
+@router.post("/improve", response_model=TariffsResponse)
+@limiter.limit("10/hour")
+async def improve_tariffs(
+    request: Request,
+    body: ImproveRequest,
+):
+    """Improve existing tariff data based on user instructions.
+
+    Takes existing tariff JSON and a natural language instruction,
+    and returns updated tariff data.
+    Rate limited to 10 requests/hour.
+    """
+    try:
+        # Validate JSON
+        tariffs_data = json.loads(body.tariffs_json)
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid JSON: {str(e)}")
+
+    if not body.instruction.strip():
+        raise HTTPException(status_code=400, detail="Instruction cannot be empty")
+
+    try:
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if not api_key:
+            raise HTTPException(status_code=500, detail="API key not configured")
+
+        parser = TariffParser(api_key)
+        result = await parser.improve_tariffs(tariffs_data, body.instruction)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to improve: {str(e)}")
