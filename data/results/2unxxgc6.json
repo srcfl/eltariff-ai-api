@@ -1,0 +1,739 @@
+{
+  "id": "2unxxgc6",
+  "created_at": "2025-12-29T16:44:54.693153",
+  "source_url": "https://www.ellevio.se/abonnemang/elnatspriser-privat/",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+  "ip_hash": "12ca17b4",
+  "data": {
+    "tariffs": [
+      {
+        "id": "fb29a7e2-9247-4e1d-9f08-11825dab9de6",
+        "name": "Abonnemang lägenhet 16-20A",
+        "description": "Gäller för anläggningar där det finns minst tre abonnemang med gemensam elnätsanslutning. Säkringsstorlek 16A eller 20A, max 35A enfas.",
+        "validPeriod": {
+          "fromIncluding": "2025-01-01",
+          "toExcluding": "2026-12-31"
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:44:53.427388",
+        "companyName": "Ellevio AB",
+        "companyOrgNo": "",
+        "product": "Abonnemang lägenhet",
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "b2090173-f9b3-418c-a81e-82fd76b5f73d",
+          "name": "Fast elnätsavgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "5b54517b-12bb-4058-aa0e-caf574081bf0",
+              "name": "Fast elnätsavgift",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "88.0",
+                "priceIncVat": "110.0",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "7f52234d-e134-48d9-a8df-70c0bc424571",
+          "name": "Överföringsavgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "ae9aefe5-ee63-4a06-b577-5ace6fe0f1cf",
+              "name": "Överföringsavgift",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.208",
+                "priceIncVat": "0.26",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": null
+      },
+      {
+        "id": "1aee3ffb-88d7-4aaf-ad59-1dc6a2e8d3e7",
+        "name": "Effekt 16A",
+        "description": "För bland annat villor, radhus, fritidshus och verksamhetslokaler med egen anslutning till elnätet – ej lägenheter. Säkringsstorlek 16A.",
+        "validPeriod": {
+          "fromIncluding": "2025-01-01",
+          "toExcluding": "2026-12-31"
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:44:53.427543",
+        "companyName": "Ellevio AB",
+        "companyOrgNo": "",
+        "product": "Effekt 16–63 A",
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "32376fcb-b77e-4524-aced-9eeaeff47f91",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "2fd4d8d5-03b0-4e24-ae90-1e9fc21d4eb0",
+              "name": "Fast avgift",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "292.0",
+                "priceIncVat": "365.0",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "bc9f1005-f115-4ff0-a750-3912f1d21575",
+          "name": "Överföringsavgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "a34f11d4-7d3d-4953-b148-4637e03b1ca4",
+              "name": "Överföringsavgift",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.05",
+                "priceIncVat": "0.0625",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": {
+          "id": "e3878279-5a3f-436d-b43f-d6df2837dda1",
+          "name": "Effektavgift",
+          "description": "Effektavgiften baseras på snittet av de tre högsta effekttopparna, fördelade på tre olika dygn under månaden. Mellan kl 22:00-06:00 räknas bara halva effekttoppen.",
+          "costFunction": null,
+          "components": [
+            {
+              "id": "9ff31129-5c8c-43fa-95f6-843e8a02bfe0",
+              "name": "Effektavgift",
+              "description": null,
+              "type": "peak",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "65.0",
+                "priceIncVat": "81.25",
+                "currency": "SEK"
+              },
+              "unit": "kW",
+              "pricedPeriod": null,
+              "recurringPeriods": [
+                {
+                  "reference": "main",
+                  "frequency": "P1D",
+                  "activePeriods": [
+                    {
+                      "fromIncluding": "06:00:00",
+                      "toExcluding": "22:00:00",
+                      "calendarPatternReferences": {
+                        "include": [
+                          "weekdays",
+                          "weekends",
+                          "holidays"
+                        ],
+                        "exclude": []
+                      }
+                    }
+                  ]
+                },
+                {
+                  "reference": "night",
+                  "frequency": "P1D",
+                  "activePeriods": [
+                    {
+                      "fromIncluding": "22:00:00",
+                      "toExcluding": "06:00:00",
+                      "calendarPatternReferences": {
+                        "include": [
+                          "weekdays",
+                          "weekends",
+                          "holidays"
+                        ],
+                        "exclude": []
+                      }
+                    }
+                  ]
+                }
+              ],
+              "peakIdentificationSettings": {
+                "peakFunction": "peak(main)",
+                "peakIdentificationPeriod": "P1M",
+                "peakDuration": "PT1H",
+                "numberOfPeaksForAverageCalculation": 3
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "8af3834d-b8d7-48d6-8c1e-0e961d45235d",
+        "name": "Effekt 20A",
+        "description": "För bland annat villor, radhus, fritidshus och verksamhetslokaler med egen anslutning till elnätet – ej lägenheter. Säkringsstorlek 20A.",
+        "validPeriod": {
+          "fromIncluding": "2025-01-01",
+          "toExcluding": "2026-12-31"
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:44:53.427587",
+        "companyName": "Ellevio AB",
+        "companyOrgNo": "",
+        "product": "Effekt 16–63 A",
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "6541baf5-1c65-4997-9be8-f561a77a0ea8",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "2558fe99-7ba0-46bd-80dc-d9bb9c325d06",
+              "name": "Fast avgift",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "292.0",
+                "priceIncVat": "365.0",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "3df5653f-ed6d-48bc-b62e-8302248cc088",
+          "name": "Överföringsavgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "a6f11da0-c0f6-4ad0-8622-7dca2bcf459c",
+              "name": "Överföringsavgift",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.05",
+                "priceIncVat": "0.0625",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": {
+          "id": "107d7849-0104-4974-bfc0-84578fe98c74",
+          "name": "Effektavgift",
+          "description": "Effektavgiften baseras på snittet av de tre högsta effekttopparna, fördelade på tre olika dygn under månaden. Mellan kl 22:00-06:00 räknas bara halva effekttoppen.",
+          "costFunction": null,
+          "components": [
+            {
+              "id": "892a3442-1a92-4728-b964-ce36a24f3c3b",
+              "name": "Effektavgift",
+              "description": null,
+              "type": "peak",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "65.0",
+                "priceIncVat": "81.25",
+                "currency": "SEK"
+              },
+              "unit": "kW",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": {
+                "peakFunction": "peak(main)",
+                "peakIdentificationPeriod": "P1M",
+                "peakDuration": "PT1H",
+                "numberOfPeaksForAverageCalculation": 3
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "0714c117-48eb-4bec-8b5b-d99a06c98dd0",
+        "name": "Effekt 25A",
+        "description": "För bland annat villor, radhus, fritidshus och verksamhetslokaler med egen anslutning till elnätet – ej lägenheter. Säkringsstorlek 25A.",
+        "validPeriod": {
+          "fromIncluding": "2025-01-01",
+          "toExcluding": "2026-12-31"
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:44:53.427620",
+        "companyName": "Ellevio AB",
+        "companyOrgNo": "",
+        "product": "Effekt 16–63 A",
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "dfc9daa2-1fde-4495-be56-19ff053fbda5",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "25f5fa87-6935-465d-a7d2-5985140657c5",
+              "name": "Fast avgift",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "292.0",
+                "priceIncVat": "365.0",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "d38b6b85-d211-4490-a086-b5b2b6bed286",
+          "name": "Överföringsavgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "73584466-f476-4e3b-8225-b9c31ecbbd21",
+              "name": "Överföringsavgift",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.05",
+                "priceIncVat": "0.0625",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": {
+          "id": "7c7aea35-32d1-44aa-9ec5-00b96a946a8b",
+          "name": "Effektavgift",
+          "description": "Effektavgiften baseras på snittet av de tre högsta effekttopparna, fördelade på tre olika dygn under månaden. Mellan kl 22:00-06:00 räknas bara halva effekttoppen.",
+          "costFunction": null,
+          "components": [
+            {
+              "id": "67509241-3af0-4f23-88a8-1ab526741e33",
+              "name": "Effektavgift",
+              "description": null,
+              "type": "peak",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "65.0",
+                "priceIncVat": "81.25",
+                "currency": "SEK"
+              },
+              "unit": "kW",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": {
+                "peakFunction": "peak(main)",
+                "peakIdentificationPeriod": "P1M",
+                "peakDuration": "PT1H",
+                "numberOfPeaksForAverageCalculation": 3
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "ee71bc1c-765c-49df-afa9-f1b0254f9c5c",
+        "name": "Effekt 35A",
+        "description": "För bland annat villor, radhus, fritidshus och verksamhetslokaler med egen anslutning till elnätet – ej lägenheter. Säkringsstorlek 35A.",
+        "validPeriod": {
+          "fromIncluding": "2025-01-01",
+          "toExcluding": "2026-12-31"
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:44:53.427648",
+        "companyName": "Ellevio AB",
+        "companyOrgNo": "",
+        "product": "Effekt 16–63 A",
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "c26ab030-bd21-437d-a659-03ad9e10ba09",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "09aa1b82-0a5b-41e2-98ce-60b7217d903d",
+              "name": "Fast avgift",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "732.0",
+                "priceIncVat": "915.0",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "29d71011-10e0-4263-b4fc-7270431fccc3",
+          "name": "Överföringsavgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "8bf7588e-a7d7-4079-bc43-c7c869f754b1",
+              "name": "Överföringsavgift",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.05",
+                "priceIncVat": "0.0625",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": {
+          "id": "3cb5b5a4-38e3-4947-a9f2-f84670b0bbd3",
+          "name": "Effektavgift",
+          "description": "Effektavgiften baseras på snittet av de tre högsta effekttopparna, fördelade på tre olika dygn under månaden. Mellan kl 22:00-06:00 räknas bara halva effekttoppen.",
+          "costFunction": null,
+          "components": [
+            {
+              "id": "68a2d6e6-d7ac-45f2-a491-ca8d26635020",
+              "name": "Effektavgift",
+              "description": null,
+              "type": "peak",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "65.0",
+                "priceIncVat": "81.25",
+                "currency": "SEK"
+              },
+              "unit": "kW",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": {
+                "peakFunction": "peak(main)",
+                "peakIdentificationPeriod": "P1M",
+                "peakDuration": "PT1H",
+                "numberOfPeaksForAverageCalculation": 3
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "753be1f4-82fd-4997-b032-5376016a4e58",
+        "name": "Effekt 50A",
+        "description": "För bland annat villor, radhus, fritidshus och verksamhetslokaler med egen anslutning till elnätet – ej lägenheter. Säkringsstorlek 50A.",
+        "validPeriod": {
+          "fromIncluding": "2025-01-01",
+          "toExcluding": "2026-12-31"
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:44:53.427680",
+        "companyName": "Ellevio AB",
+        "companyOrgNo": "",
+        "product": "Effekt 16–63 A",
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "71674d82-8ed9-469c-8905-6394ff930c57",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "7726f75b-8ca4-4a0c-a45a-7dd6f3c3dda4",
+              "name": "Fast avgift",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "1120.0",
+                "priceIncVat": "1400.0",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "dbeb51a4-9f7c-4878-be90-719016336346",
+          "name": "Överföringsavgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "7cbcaec8-008a-4e14-8e6e-27e8f62f0ad5",
+              "name": "Överföringsavgift",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.05",
+                "priceIncVat": "0.0625",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": {
+          "id": "981a862b-6c6e-4949-a346-c13ffcc9eb6b",
+          "name": "Effektavgift",
+          "description": "Effektavgiften baseras på snittet av de tre högsta effekttopparna, fördelade på tre olika dygn under månaden. Mellan kl 22:00-06:00 räknas bara halva effekttoppen.",
+          "costFunction": null,
+          "components": [
+            {
+              "id": "84561db2-ca53-498b-9c1f-6d68bf795ff8",
+              "name": "Effektavgift",
+              "description": null,
+              "type": "peak",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "65.0",
+                "priceIncVat": "81.25",
+                "currency": "SEK"
+              },
+              "unit": "kW",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": {
+                "peakFunction": "peak(main)",
+                "peakIdentificationPeriod": "P1M",
+                "peakDuration": "PT1H",
+                "numberOfPeaksForAverageCalculation": 3
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "f7b6b2bf-8492-4333-9a5f-0cffad01d7e1",
+        "name": "Effekt 63A",
+        "description": "För bland annat villor, radhus, fritidshus och verksamhetslokaler med egen anslutning till elnätet – ej lägenheter. Säkringsstorlek 63A.",
+        "validPeriod": {
+          "fromIncluding": "2025-01-01",
+          "toExcluding": "2026-12-31"
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:44:53.427722",
+        "companyName": "Ellevio AB",
+        "companyOrgNo": "",
+        "product": "Effekt 16–63 A",
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "1c2bea65-c42c-4aea-8fcf-ab0de3d8b935",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "eca0692a-5680-471f-9b14-96333e7d6bc1",
+              "name": "Fast avgift",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "1608.0",
+                "priceIncVat": "2010.0",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "3d1c34ff-e911-4809-8c37-7fa871cc0039",
+          "name": "Överföringsavgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "7b214f96-3bcf-4829-bc9a-3ddff57f6f79",
+              "name": "Överföringsavgift",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.05",
+                "priceIncVat": "0.0625",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": {
+          "id": "784f9e39-195f-4605-82bd-f46f4e2c836f",
+          "name": "Effektavgift",
+          "description": "Effektavgiften baseras på snittet av de tre högsta effekttopparna, fördelade på tre olika dygn under månaden. Mellan kl 22:00-06:00 räknas bara halva effekttoppen.",
+          "costFunction": null,
+          "components": [
+            {
+              "id": "7daf385a-c247-45df-bf0e-f361b0620da1",
+              "name": "Effektavgift",
+              "description": null,
+              "type": "peak",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "65.0",
+                "priceIncVat": "81.25",
+                "currency": "SEK"
+              },
+              "unit": "kW",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": {
+                "peakFunction": "peak(main)",
+                "peakIdentificationPeriod": "P1M",
+                "peakDuration": "PT1H",
+                "numberOfPeaksForAverageCalculation": 3
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "calendarPatterns": [
+      {
+        "reference": "weekdays",
+        "frequency": "P1W",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "dates": null
+      },
+      {
+        "reference": "weekends",
+        "frequency": "P1W",
+        "days": [
+          6,
+          7
+        ],
+        "dates": null
+      },
+      {
+        "reference": "holidays",
+        "frequency": "P1Y",
+        "days": null,
+        "dates": [
+          "2025-01-01",
+          "2025-01-06",
+          "2025-04-18",
+          "2025-04-21",
+          "2025-05-01",
+          "2025-05-29",
+          "2025-06-06",
+          "2025-06-21",
+          "2025-11-01",
+          "2025-12-25",
+          "2025-12-26"
+        ]
+      }
+    ],
+    "warnings": [
+      "Effektavgiftens specialregel för nattid (22:00-06:00) där endast halva effekttoppen räknas är komplex och representeras här med recurringPeriods på den första tariffen som exempel",
+      "Organisationsnummer för Ellevio AB kunde inte extraheras från innehållet",
+      "Lägenhetstariffen kombinerar 16A och 20A i samma tariff enligt ursprungsbeskrivningen",
+      "Effektavgiftens beräkning med halva toppen nattetid är en speciell regel som kan behöva ytterligare teknisk specifikation",
+      "Giltighetstiden är explicit angiven till 31 december 2026"
+    ]
+  }
+}

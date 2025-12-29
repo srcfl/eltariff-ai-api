@@ -59,27 +59,27 @@
 <body class="bg-gray-50 min-h-screen font-sans">
     <!-- Header -->
     <header class="gradient-bg text-white">
-        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between">
-                <a href="/" class="flex items-center gap-4">
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:py-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <a href="/" class="flex items-center gap-3 sm:gap-4">
                     <img src="/static/sourceful-logo.png"
-                         alt="Sourceful" class="h-10">
-                    <div class="border-l border-gray-500 pl-4">
-                        <h1 class="text-2xl font-bold">Eltariff AI</h1>
-                        <p class="text-sm text-gray-300">Skapa RISE-kompatibelt API</p>
+                         alt="Sourceful" class="h-8 sm:h-10">
+                    <div class="border-l border-gray-500 pl-3 sm:pl-4">
+                        <h1 class="text-lg sm:text-2xl font-bold">Eltariff AI</h1>
+                        <p class="text-xs sm:text-sm text-gray-300">Skapa RISE-kompatibelt API</p>
                     </div>
                 </a>
-                <nav class="flex gap-6">
-                    <a href="/" class="text-sourceful-teal font-medium">Skapa ditt egna API</a>
-                    <a href="/explorer" class="text-gray-300 hover:text-white">Utforska befintliga APIer</a>
+                <nav class="flex gap-3 sm:gap-6 text-sm sm:text-base">
+                    <a href="/" class="text-sourceful-teal font-medium">Skapa</a>
+                    <a href="/explorer" class="text-gray-300 hover:text-white">Utforska</a>
                 </nav>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <main class="max-w-7xl mx-auto px-4 py-4 sm:py-8 sm:px-6 lg:px-8">
         <!-- Introduction -->
-        <div class="bg-sourceful-green/10 border border-sourceful-green/30 rounded-lg p-6 mb-8">
+        <div class="bg-sourceful-green/10 border border-sourceful-green/30 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
             <h2 class="text-lg font-semibold text-sourceful-grey mb-2">Vad är detta?</h2>
             <p class="text-sourceful-grey/80">
                 Detta verktyg hjälper svenska elnätsbolag att skapa ett maskinläsbart API för sina tariffer
@@ -134,11 +134,11 @@
             </details>
         </div>
 
-        <div class="grid lg:grid-cols-2 gap-8">
+        <div class="grid lg:grid-cols-2 gap-4 sm:gap-8">
             <!-- Left: Input -->
-            <div id="input-section" class="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
-                <h2 class="text-xl font-semibold text-sourceful-grey mb-4">1. Ange tariffer</h2>
-                <p class="text-sm text-gray-500 mb-6">Fyll i ett eller flera av fälten nedan. AI:n extraherar automatiskt företagsnamn och tariffdata.</p>
+            <div id="input-section" class="bg-white rounded-lg shadow-lg p-4 sm:p-6 border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-semibold text-sourceful-grey mb-3 sm:mb-4">1. Ange tariffer</h2>
+                <p class="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6">Fyll i ett eller flera av fälten nedan. AI:n extraherar automatiskt företagsnamn och tariffdata.</p>
 
                 <!-- URL input -->
                 <div class="mb-4">
@@ -218,8 +218,8 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
             </div>
 
             <!-- Right: Result -->
-            <div id="result-section" class="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
-                <h2 class="text-xl font-semibold text-sourceful-grey mb-4">2. Resultat</h2>
+            <div id="result-section" class="bg-white rounded-lg shadow-lg p-4 sm:p-6 border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-semibold text-sourceful-grey mb-3 sm:mb-4">2. Resultat</h2>
 
                 <div id="result-placeholder" class="text-gray-400 text-center py-20">
                     Analyserade tariffer visas här...
@@ -350,16 +350,16 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                         </div>
 
                         <!-- Secondary options -->
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                             <button onclick="downloadPackage()" id="btn-download"
-                                    class="bg-sourceful-grey text-white py-2.5 px-4 rounded-lg hover:bg-sourceful-blue transition flex items-center justify-center gap-2 font-medium text-sm">
+                                    class="bg-sourceful-grey text-white py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg hover:bg-sourceful-blue transition flex items-center justify-center gap-2 font-medium text-xs sm:text-sm">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
                                 </svg>
                                 Docker-paket (ZIP)
                             </button>
                             <button onclick="downloadExcel()" id="btn-excel"
-                                    class="bg-green-600 text-white py-2.5 px-4 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2 font-medium text-sm">
+                                    class="bg-green-600 text-white py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2 font-medium text-xs sm:text-sm">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>

@@ -45,27 +45,27 @@
 <body class="bg-gray-50 min-h-screen font-sans">
     <!-- Header -->
     <header class="gradient-bg text-white">
-        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between">
-                <a href="/" class="flex items-center gap-4">
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:py-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <a href="/" class="flex items-center gap-3 sm:gap-4">
                     <img src="/static/sourceful-logo.png"
-                         alt="Sourceful" class="h-10">
-                    <div class="border-l border-gray-500 pl-4">
-                        <h1 class="text-2xl font-bold">API Explorer</h1>
-                        <p class="text-sm text-gray-300">Utforska RISE-kompatibla API:er</p>
+                         alt="Sourceful" class="h-8 sm:h-10">
+                    <div class="border-l border-gray-500 pl-3 sm:pl-4">
+                        <h1 class="text-lg sm:text-2xl font-bold">API Explorer</h1>
+                        <p class="text-xs sm:text-sm text-gray-300">Utforska RISE-kompatibla API:er</p>
                     </div>
                 </a>
-                <nav class="flex gap-6">
-                    <a href="/" class="text-gray-300 hover:text-white">Skapa ditt egna API</a>
-                    <a href="/explorer" class="text-sourceful-teal font-medium">Utforska befintliga APIer</a>
+                <nav class="flex gap-3 sm:gap-6 text-sm sm:text-base">
+                    <a href="/" class="text-gray-300 hover:text-white">Skapa</a>
+                    <a href="/explorer" class="text-sourceful-teal font-medium">Utforska</a>
                 </nav>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <main class="max-w-7xl mx-auto px-4 py-4 sm:py-8 sm:px-6 lg:px-8">
         <!-- Introduction -->
-        <div class="bg-sourceful-green/10 border border-sourceful-green/30 rounded-lg p-6 mb-8">
+        <div class="bg-sourceful-green/10 border border-sourceful-green/30 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
             <h2 class="text-lg font-semibold text-sourceful-grey mb-2">Utforska RISE-kompatibla API:er</h2>
             <p class="text-sourceful-grey/80">
                 Här kan du utforska befintliga elnätstariff-API:er som följer RISE-standarden.
@@ -78,10 +78,10 @@
         </div>
 
         <!-- API Selection -->
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-8 border border-gray-100">
-            <h2 class="text-lg font-semibold text-sourceful-grey mb-4">Välj API att utforska</h2>
+        <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6 sm:mb-8 border border-gray-100">
+            <h2 class="text-base sm:text-lg font-semibold text-sourceful-grey mb-3 sm:mb-4">Välj API att utforska</h2>
 
-            <div class="grid md:grid-cols-3 gap-4 mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <!-- Göteborg Energi -->
                 <div>
                     <h3 class="text-sm font-medium text-sourceful-grey mb-2">Göteborg</h3>

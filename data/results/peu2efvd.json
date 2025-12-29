@@ -1,0 +1,1212 @@
+{
+  "id": "peu2efvd",
+  "created_at": "2025-12-29T16:40:48.942763",
+  "source_url": "https://kalmarenergi.se/foretag/el/elnat/elnatsavgifter/",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+  "ip_hash": "12ca17b4",
+  "data": {
+    "tariffs": [
+      {
+        "id": "89607e1a-87c6-49de-ae21-18b00985ad74",
+        "name": "Säkringstariff 16A Lägenhet",
+        "description": "Elnätstariff för lägenheter i flerbostadshus med 16A mätarsäkring",
+        "validPeriod": {
+          "fromIncluding": "2025-01-01",
+          "toExcluding": null
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:40:47.622409",
+        "companyName": "Kalmar Energi",
+        "companyOrgNo": "",
+        "product": null,
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "bef7ae9f-dd88-42d4-a8f9-1d24955b9f9a",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "bbf74d9a-a2ff-447b-b13d-e8ef5b08306d",
+              "name": "Abonnemangsavgift 16A Lägenhet",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "165.33",
+                "priceIncVat": "206.67",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "cc473c5f-5034-4df1-9b27-8089f7ce0597",
+          "name": "Energiavgifter",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "86473ded-1315-4a16-abf2-1c4836749840",
+              "name": "Överföringsavgift",
+              "description": "Spotprisbaserad avgift som varierar månadsvis baserat på elpriset",
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.0688",
+                "priceIncVat": "0.086",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            },
+            {
+              "id": "0c8c4aa8-cfb5-4f31-a16d-3a818e42494e",
+              "name": "Energiskatt",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.439",
+                "priceIncVat": "0.54875",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": null
+      },
+      {
+        "id": "0b11d29f-8ad0-45a6-a92a-136bc218521b",
+        "name": "Säkringstariff 16A",
+        "description": "Elnätstariff för 16A huvudsäkring",
+        "validPeriod": {
+          "fromIncluding": "2025-01-01",
+          "toExcluding": null
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:40:47.622488",
+        "companyName": "Kalmar Energi",
+        "companyOrgNo": "",
+        "product": null,
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "e6e3617a-fbff-48cd-b3fc-ef8cd78b02d1",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "abdf1465-56df-4de3-82d4-ac2387c63e64",
+              "name": "Abonnemangsavgift 16A",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "291.67",
+                "priceIncVat": "364.58",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "03c275d5-cd86-4719-9e18-85914b73e485",
+          "name": "Energiavgifter",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "5c2b84ed-509e-4c53-8bc9-e46658b3aa74",
+              "name": "Överföringsavgift",
+              "description": "Spotprisbaserad avgift som varierar månadsvis baserat på elpriset",
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.0688",
+                "priceIncVat": "0.086",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            },
+            {
+              "id": "215d9b6c-c791-42d6-ba9f-11961ade191e",
+              "name": "Energiskatt",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.439",
+                "priceIncVat": "0.54875",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": null
+      },
+      {
+        "id": "e2d125ae-8973-4192-8989-f6e0c3ad4814",
+        "name": "Säkringstariff 20A",
+        "description": "Elnätstariff för 20A huvudsäkring",
+        "validPeriod": {
+          "fromIncluding": "2025-01-01",
+          "toExcluding": null
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:40:47.622807",
+        "companyName": "Kalmar Energi",
+        "companyOrgNo": "",
+        "product": null,
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "7755a79b-2b9b-4a2a-a31e-72f95913d489",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "ffb59f7a-f305-476b-a718-2b9e70e088a1",
+              "name": "Abonnemangsavgift 20A",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "472.75",
+                "priceIncVat": "590.94",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "552bd5fa-587d-43d6-8631-be221aa38a6a",
+          "name": "Energiavgifter",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "74377245-2210-4e7d-86a6-5e3fe68659b0",
+              "name": "Överföringsavgift",
+              "description": "Spotprisbaserad avgift som varierar månadsvis baserat på elpriset",
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.0688",
+                "priceIncVat": "0.086",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            },
+            {
+              "id": "6485313d-2c7c-41b8-895e-310bf0db71f5",
+              "name": "Energiskatt",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.439",
+                "priceIncVat": "0.54875",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": null
+      },
+      {
+        "id": "de6f3b07-126f-4cdb-a643-1dd9df7c7729",
+        "name": "Säkringstariff 25A",
+        "description": "Elnätstariff för 25A huvudsäkring",
+        "validPeriod": {
+          "fromIncluding": "2025-01-01",
+          "toExcluding": null
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:40:47.622831",
+        "companyName": "Kalmar Energi",
+        "companyOrgNo": "",
+        "product": null,
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "6c9cddb4-f231-4d60-b0e9-1949e43078c9",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "e8348372-21e3-4bbb-8cc1-d97f9a62f096",
+              "name": "Abonnemangsavgift 25A",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "595.75",
+                "priceIncVat": "744.69",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "94f3abd1-c538-4909-be63-17886c0e5dbb",
+          "name": "Energiavgifter",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "a65e9a34-cae2-4bf9-bc2c-e08b3e3be690",
+              "name": "Överföringsavgift",
+              "description": "Spotprisbaserad avgift som varierar månadsvis baserat på elpriset",
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.0688",
+                "priceIncVat": "0.086",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            },
+            {
+              "id": "984d364f-5188-45a9-88ae-a7f5a86501cf",
+              "name": "Energiskatt",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.439",
+                "priceIncVat": "0.54875",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": null
+      },
+      {
+        "id": "e11fb8fe-4651-446b-8f83-f298453fc116",
+        "name": "Säkringstariff 35A",
+        "description": "Elnätstariff för 35A huvudsäkring",
+        "validPeriod": {
+          "fromIncluding": "2025-01-01",
+          "toExcluding": null
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:40:47.622852",
+        "companyName": "Kalmar Energi",
+        "companyOrgNo": "",
+        "product": null,
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "1329b23a-016b-43d5-a8db-fa391f2dc5ff",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "add23e0f-0463-4132-a2dc-251d4bc1a556",
+              "name": "Abonnemangsavgift 35A",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "886.08",
+                "priceIncVat": "1107.6",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "30446cd0-b72b-4b64-aa8c-e198ff1db4c2",
+          "name": "Energiavgifter",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "b916f897-4926-42fe-b2ea-41ae2a1eee95",
+              "name": "Överföringsavgift",
+              "description": "Spotprisbaserad avgift som varierar månadsvis baserat på elpriset",
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.0688",
+                "priceIncVat": "0.086",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            },
+            {
+              "id": "dd87b784-17c2-4fff-85e1-7839bd47d942",
+              "name": "Energiskatt",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.439",
+                "priceIncVat": "0.54875",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": null
+      },
+      {
+        "id": "ba60905e-e87a-41b2-852d-382942571fe5",
+        "name": "Säkringstariff 50A",
+        "description": "Elnätstariff för 50A huvudsäkring",
+        "validPeriod": {
+          "fromIncluding": "2025-01-01",
+          "toExcluding": null
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:40:47.622873",
+        "companyName": "Kalmar Energi",
+        "companyOrgNo": "",
+        "product": null,
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "f502568f-9b18-4beb-b7de-8d07195f9afa",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "f0f4ff68-f7f5-4ef8-8deb-4eeb887d0d4b",
+              "name": "Abonnemangsavgift 50A",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "1281.83",
+                "priceIncVat": "1602.29",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "8af65b39-f0c5-4e4f-8a2e-526ed7bbc61f",
+          "name": "Energiavgifter",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "362c31a6-cc8a-420c-b97f-6427be20e846",
+              "name": "Överföringsavgift",
+              "description": "Spotprisbaserad avgift som varierar månadsvis baserat på elpriset",
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.0688",
+                "priceIncVat": "0.086",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            },
+            {
+              "id": "bd20ebba-2466-40c6-bf96-3b8721e0ee12",
+              "name": "Energiskatt",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.439",
+                "priceIncVat": "0.54875",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": null
+      },
+      {
+        "id": "251df0ee-10ea-41f7-8d4f-07e0373e9755",
+        "name": "Säkringstariff 63A",
+        "description": "Elnätstariff för 63A huvudsäkring",
+        "validPeriod": {
+          "fromIncluding": "2025-01-01",
+          "toExcluding": null
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:40:47.622904",
+        "companyName": "Kalmar Energi",
+        "companyOrgNo": "",
+        "product": null,
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "9e08cff0-cb78-4214-a584-40679eecc400",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "54dac6d0-e3a2-4681-9674-bf8f3ea7f94c",
+              "name": "Abonnemangsavgift 63A",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "1428.25",
+                "priceIncVat": "1785.31",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "b5774154-4caf-4d78-82b3-9d6a53cd8f2c",
+          "name": "Energiavgifter",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "1f81f475-e259-4bc7-ae42-58ddc61554a4",
+              "name": "Överföringsavgift",
+              "description": "Spotprisbaserad avgift som varierar månadsvis baserat på elpriset",
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.0688",
+                "priceIncVat": "0.086",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            },
+            {
+              "id": "a071f926-611c-4f4b-b8e7-25def5031072",
+              "name": "Energiskatt",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.439",
+                "priceIncVat": "0.54875",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": null
+      },
+      {
+        "id": "a44c12c3-9114-4b5c-ad8a-e9931f43db69",
+        "name": "Säkringstariff 80A",
+        "description": "Elnätstariff för 80A huvudsäkring med effektavgift från november 2025",
+        "validPeriod": {
+          "fromIncluding": "2025-11-01",
+          "toExcluding": null
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:40:47.622945",
+        "companyName": "Kalmar Energi",
+        "companyOrgNo": "",
+        "product": null,
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "92cc2493-c618-4482-b01e-1a693c87889b",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "b9283474-7008-4b77-9b83-a7b8499d3350",
+              "name": "Abonnemangsavgift 80A",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "758.33",
+                "priceIncVat": "947.91",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "e0b125b8-00af-48e1-a938-06d42234a2a4",
+          "name": "Energiavgifter",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "44c257cc-5b85-468a-92d5-e016e3c61eaf",
+              "name": "Överföringsavgift",
+              "description": "Spotprisbaserad avgift som varierar månadsvis baserat på elpriset",
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.0688",
+                "priceIncVat": "0.086",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            },
+            {
+              "id": "73a934e8-30c3-48a1-8f28-6aadf551ff24",
+              "name": "Energiskatt",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.36",
+                "priceIncVat": "0.45",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": {
+          "id": "c05c978f-f635-4853-9d71-06227d21a79b",
+          "name": "Effektavgift",
+          "description": "Beräknas på månadsbasis baserat på högsta uppmätta effekt",
+          "costFunction": null,
+          "components": [
+            {
+              "id": "c9b8d716-8515-46a9-bbdc-c60608c282d2",
+              "name": "Effektavgift 80A-200A",
+              "description": null,
+              "type": "peak",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "42.7",
+                "priceIncVat": "53.375",
+                "currency": "SEK"
+              },
+              "unit": "kW",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": {
+                "peakFunction": "peak(main)",
+                "peakIdentificationPeriod": "P1M",
+                "peakDuration": "PT1H",
+                "numberOfPeaksForAverageCalculation": 1
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "0f53a2c7-f87b-4bad-86dd-98ce6cf20c73",
+        "name": "Säkringstariff 100A",
+        "description": "Elnätstariff för 100A huvudsäkring med effektavgift från november 2025",
+        "validPeriod": {
+          "fromIncluding": "2025-11-01",
+          "toExcluding": null
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:40:47.622973",
+        "companyName": "Kalmar Energi",
+        "companyOrgNo": "",
+        "product": null,
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "dfda56ae-dbb5-4e7b-bf17-ddd33748fcfc",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "4512b64a-eed8-4f6a-9b4b-87c240fa607c",
+              "name": "Abonnemangsavgift 100A",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "828.67",
+                "priceIncVat": "1035.84",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "21fc8a0a-c344-40bd-96dd-282583e8dbd4",
+          "name": "Energiavgifter",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "57819fc7-d76c-407f-b7d2-b53ab68f4b8f",
+              "name": "Överföringsavgift",
+              "description": "Spotprisbaserad avgift som varierar månadsvis baserat på elpriset",
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.0688",
+                "priceIncVat": "0.086",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            },
+            {
+              "id": "8fb04a46-c416-4b44-94ab-57fe43b38f75",
+              "name": "Energiskatt",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.36",
+                "priceIncVat": "0.45",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": {
+          "id": "42ee150c-5d84-4539-a9a0-b5a43850845c",
+          "name": "Effektavgift",
+          "description": "Beräknas på månadsbasis baserat på högsta uppmätta effekt",
+          "costFunction": null,
+          "components": [
+            {
+              "id": "a491eb1c-8235-41ed-92dc-b7ce4707f8e6",
+              "name": "Effektavgift 80A-200A",
+              "description": null,
+              "type": "peak",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "42.7",
+                "priceIncVat": "53.375",
+                "currency": "SEK"
+              },
+              "unit": "kW",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": {
+                "peakFunction": "peak(main)",
+                "peakIdentificationPeriod": "P1M",
+                "peakDuration": "PT1H",
+                "numberOfPeaksForAverageCalculation": 1
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "18904cc1-376c-4b93-86d9-14b9c5f3ffe5",
+        "name": "Säkringstariff 125A",
+        "description": "Elnätstariff för 125A huvudsäkring med effektavgift från november 2025",
+        "validPeriod": {
+          "fromIncluding": "2025-11-01",
+          "toExcluding": null
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:40:47.623001",
+        "companyName": "Kalmar Energi",
+        "companyOrgNo": "",
+        "product": null,
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "e8e88af1-c286-447c-85dd-4531a5fa2314",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "520ecc51-68fd-4023-8614-23a0b61a0a25",
+              "name": "Abonnemangsavgift 125A",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "1049.5",
+                "priceIncVat": "1311.875",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "26f5ede7-f2d5-4a00-b938-0f833d156b7c",
+          "name": "Energiavgifter",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "04cff5bd-e88a-49c0-bc49-d8c76ace16f0",
+              "name": "Överföringsavgift",
+              "description": "Spotprisbaserad avgift som varierar månadsvis baserat på elpriset",
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.0688",
+                "priceIncVat": "0.086",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            },
+            {
+              "id": "7af2818d-5ed9-4b59-b9bc-35736cfdf9ee",
+              "name": "Energiskatt",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.36",
+                "priceIncVat": "0.45",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": {
+          "id": "df7d3d79-7af6-4b9c-91d1-d698b2e21068",
+          "name": "Effektavgift",
+          "description": "Beräknas på månadsbasis baserat på högsta uppmätta effekt",
+          "costFunction": null,
+          "components": [
+            {
+              "id": "ab0ce197-cb8c-47da-bc9b-f03507d3ade3",
+              "name": "Effektavgift 80A-200A",
+              "description": null,
+              "type": "peak",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "42.7",
+                "priceIncVat": "53.375",
+                "currency": "SEK"
+              },
+              "unit": "kW",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": {
+                "peakFunction": "peak(main)",
+                "peakIdentificationPeriod": "P1M",
+                "peakDuration": "PT1H",
+                "numberOfPeaksForAverageCalculation": 1
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "a629e817-984d-49aa-bc07-0ec1dd0b876b",
+        "name": "Säkringstariff 160A",
+        "description": "Elnätstariff för 160A huvudsäkring med effektavgift från november 2025",
+        "validPeriod": {
+          "fromIncluding": "2025-11-01",
+          "toExcluding": null
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:40:47.623031",
+        "companyName": "Kalmar Energi",
+        "companyOrgNo": "",
+        "product": null,
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "11bb1507-981d-40f1-983b-0c12967e0caf",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "f32619e3-bce3-4975-b601-d1ed531e2ba6",
+              "name": "Abonnemangsavgift 160A",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "1396.08",
+                "priceIncVat": "1745.1",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "33861b93-b265-4406-8718-346c2972b8d4",
+          "name": "Energiavgifter",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "229e8ba5-23a9-44b2-aade-db874700a402",
+              "name": "Överföringsavgift",
+              "description": "Spotprisbaserad avgift som varierar månadsvis baserat på elpriset",
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.0688",
+                "priceIncVat": "0.086",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            },
+            {
+              "id": "b672e7c0-f726-4303-8613-976114948cd5",
+              "name": "Energiskatt",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.36",
+                "priceIncVat": "0.45",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": {
+          "id": "bd174eec-08c2-46b6-aa73-885ca09f7ecf",
+          "name": "Effektavgift",
+          "description": "Beräknas på månadsbasis baserat på högsta uppmätta effekt",
+          "costFunction": null,
+          "components": [
+            {
+              "id": "7002579e-0041-4b60-bdaa-55dfdeaf996d",
+              "name": "Effektavgift 80A-200A",
+              "description": null,
+              "type": "peak",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "42.7",
+                "priceIncVat": "53.375",
+                "currency": "SEK"
+              },
+              "unit": "kW",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": {
+                "peakFunction": "peak(main)",
+                "peakIdentificationPeriod": "P1M",
+                "peakDuration": "PT1H",
+                "numberOfPeaksForAverageCalculation": 1
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "9cc99c75-801d-4dbc-b347-d5f6894718bb",
+        "name": "Säkringstariff 200A",
+        "description": "Elnätstariff för 200A huvudsäkring med effektavgift från november 2025",
+        "validPeriod": {
+          "fromIncluding": "2025-11-01",
+          "toExcluding": null
+        },
+        "timeZone": "Europe/Stockholm",
+        "lastUpdated": "2025-12-29T16:40:47.623065",
+        "companyName": "Kalmar Energi",
+        "companyOrgNo": "",
+        "product": null,
+        "direction": "consumption",
+        "billingPeriod": "P1M",
+        "fixedPrice": {
+          "id": "a440c5d7-2403-403a-97de-f21ea745e30f",
+          "name": "Fast avgift",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "8ee0214e-b680-4064-acd0-b22f7c3b5465",
+              "name": "Abonnemangsavgift 200A",
+              "description": null,
+              "type": "fixed",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "1775.42",
+                "priceIncVat": "2219.27",
+                "currency": "SEK"
+              },
+              "unit": null,
+              "pricedPeriod": "P1M",
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "energyPrice": {
+          "id": "64c562eb-d28d-4675-8f7a-4484ea0c5d81",
+          "name": "Energiavgifter",
+          "description": null,
+          "costFunction": null,
+          "components": [
+            {
+              "id": "20e7cb33-e03b-4ac2-907c-414a4b161357",
+              "name": "Överföringsavgift",
+              "description": "Spotprisbaserad avgift som varierar månadsvis baserat på elpriset",
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.0688",
+                "priceIncVat": "0.086",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            },
+            {
+              "id": "edcbbbd9-00be-4c82-a3c7-eac68724bf5f",
+              "name": "Energiskatt",
+              "description": null,
+              "type": "variable",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "0.36",
+                "priceIncVat": "0.45",
+                "currency": "SEK"
+              },
+              "unit": "kWh",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": null
+            }
+          ]
+        },
+        "powerPrice": {
+          "id": "6e550bf2-458f-446b-8ec3-d94bf9b9df18",
+          "name": "Effektavgift",
+          "description": "Beräknas på månadsbasis baserat på högsta uppmätta effekt",
+          "costFunction": null,
+          "components": [
+            {
+              "id": "12590996-bf63-4e63-a580-bf126d553b9e",
+              "name": "Effektavgift 80A-200A",
+              "description": null,
+              "type": "peak",
+              "reference": "main",
+              "validPeriod": null,
+              "price": {
+                "priceExVat": "42.7",
+                "priceIncVat": "53.375",
+                "currency": "SEK"
+              },
+              "unit": "kW",
+              "pricedPeriod": null,
+              "recurringPeriods": [],
+              "peakIdentificationSettings": {
+                "peakFunction": "peak(main)",
+                "peakIdentificationPeriod": "P1M",
+                "peakDuration": "PT1H",
+                "numberOfPeaksForAverageCalculation": 1
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "calendarPatterns": [
+      {
+        "reference": "weekdays",
+        "frequency": "P1W",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "dates": null
+      },
+      {
+        "reference": "weekends",
+        "frequency": "P1W",
+        "days": [
+          6,
+          7
+        ],
+        "dates": null
+      },
+      {
+        "reference": "holidays",
+        "frequency": "P1Y",
+        "days": null,
+        "dates": [
+          "2025-01-01",
+          "2025-01-06",
+          "2025-04-18",
+          "2025-04-21",
+          "2025-05-01",
+          "2025-05-29",
+          "2025-06-06",
+          "2025-06-21",
+          "2025-11-01",
+          "2025-12-25",
+          "2025-12-26"
+        ]
+      }
+    ],
+    "warnings": [
+      "Överföringsavgiften är spotprisbaserad och varierar månadsvis - prisexempel på 6,88 öre/kWh används baserat på 50 öre/kWh elpris",
+      "Energiskatten sänks från 43,90 öre/kWh till 36 öre/kWh från 1 januari 2026 - detta påverkar tariffer från 80A och uppåt",
+      "Ny effekttariff införs för säkringar 80A-200A från 1 november 2025",
+      "Abonnemangsavgifterna inkluderar myndighetsavgifter (elsäkerhets-, elberedskaps- och nätövervakningsavgift)",
+      "För säkringar över 200A och högspänningskunder hänvisas till separata tariffblad (N3/N4)"
+    ]
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "id": "xszp3rep",
+  "created_at": "2025-12-29T15:58:08.081290",
+  "source_url": "https://kalmarenergi.se/foretag/el/elnat/elnatsavgifter/",
+  "data": {
+    "tariffs": [],
+    "calendarPatterns": [
+      {
+        "reference": "weekdays",
+        "frequency": "P1W",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "dates": null
+      },
+      {
+        "reference": "weekends",
+        "frequency": "P1W",
+        "days": [
+          6,
+          7
+        ],
+        "dates": null
+      },
+      {
+        "reference": "holidays",
+        "frequency": "P1Y",
+        "days": null,
+        "dates": [
+          "2025-01-01",
+          "2025-01-06",
+          "2025-04-18",
+          "2025-04-21",
+          "2025-05-01",
+          "2025-05-29",
+          "2025-06-06",
+          "2025-06-21",
+          "2025-11-01",
+          "2025-12-25",
+          "2025-12-26"
+        ]
+      }
+    ],
+    "warnings": [
+      "Ingen tariffbeskrivning med priser hittades i det tillhandahållna innehållet. Sidan verkar främst innehålla cookie-information och navigationsmenyer från Kalmar Energi."
+    ]
+  }
+}
