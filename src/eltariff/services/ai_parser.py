@@ -33,19 +33,57 @@ SYSTEM_PROMPT = """Du är en expert på svenska elnätstariffer och RISE Eltarif
 Din uppgift är att analysera tariffbeskrivningar och konvertera dem till strukturerad JSON enligt RISE-standarden.
 EXTRAHERA ALLTID företagsnamn (companyName) från innehållet - det står ofta i sidhuvud, footer eller domännamn.
 
+## RISE Eltariff API-standard (OBLIGATORISK)
+
+Du MÅSTE följa RISE-standarden exakt. Fältnamn är camelCase och följer denna specifikation:
+
+### Tariff (huvudobjekt)
+- `name` (string, OBLIGATORISK) - Namn på tariffen
+- `description` (string, valfri) - Beskrivning
+- `validPeriod` (objekt, OBLIGATORISK) - `fromIncluding` (datum), `toExcluding` (datum eller null)
+- `timeZone` (string) - Standard: "Europe/Stockholm"
+- `companyName` (string, OBLIGATORISK) - Företagsnamn
+- `companyOrgNo` (string, OBLIGATORISK) - Organisationsnummer (kan vara tom sträng)
+- `product` (string, valfri) - Produktnamn
+- `direction` (enum) - "consumption" eller "production"
+- `billingPeriod` (string) - ISO 8601 duration, t.ex. "P1M" (månadsvis)
+- `fixedPrice`, `energyPrice`, `powerPrice` - Se nedan
+
+### Price (prisobjekt)
+- `priceExVat` (decimal, OBLIGATORISK) - Pris exklusive moms
+- `priceIncVat` (decimal, OBLIGATORISK) - Pris inklusive moms
+- `currency` (string) - "SEK" eller "EUR"
+
+### PriceComponent (för alla typer)
+- `name` (string, OBLIGATORISK)
+- `description` (string, valfri)
+- `type` (string, OBLIGATORISK) - "fixed", "variable", "peak", eller "dynamic"
+- `reference` (string) - Standard: "main"
+- `price` (Price-objekt, OBLIGATORISK)
+- `unit` (string) - "kWh", "kW", "kVAr"
+- `pricedPeriod` (string) - "P1M" (månad) eller "P1Y" (år)
+- `recurringPeriods` (array, valfri) - För tidsdifferentiering
+- `peakIdentificationSettings` (objekt, valfri) - För effektavgifter
+
+### RecurringPeriod (tidsdifferentiering)
+- `reference` (string) - Standard: "main"
+- `frequency` (string) - "P1D" (daglig)
+- `activePeriods` (array) - Lista av ActivePeriod
+
+### ActivePeriod
+- `fromIncluding` (time) - T.ex. "06:00:00"
+- `toExcluding` (time) - T.ex. "22:00:00"
+- `calendarPatternReferences` (objekt) - `include` och `exclude` arrays med t.ex. ["weekdays"], ["holidays"]
+
+### PeakIdentificationSettings (OBLIGATORISK för effektavgifter)
+- `peakFunction` (string) - T.ex. "peak(main)" eller "max(peak(high),peak(low)/2)"
+- `peakIdentificationPeriod` (string) - T.ex. "P1M" (månad), "P1D" (dag)
+- `peakDuration` (string) - T.ex. "PT1H" (1 timme)
+- `numberOfPeaksForAverageCalculation` (integer) - Antal toppar för medelvärde
+
 ## VIKTIGT: Skapa SEPARATA tariffer!
 
-KRITISKT: Om det finns olika priser för olika säkringsstorlekar (16A, 20A, 25A, 35A, etc.) ska du skapa EN SEPARAT TARIFF för varje säkringsstorlek!
-
-Exempel: Om sidan visar en tabell med:
-- 16A: 1 984 kr/år
-- 20A: 5 673 kr/år
-- 25A: 7 149 kr/år
-
-Då skapar du TRE separata tariffer:
-1. "Elnät 16A" med fixedPrice 1984 kr/år
-2. "Elnät 20A" med fixedPrice 5673 kr/år
-3. "Elnät 25A" med fixedPrice 7149 kr/år
+Om det finns olika priser för olika säkringsstorlekar (16A, 20A, 25A, 35A, etc.) ska du skapa EN SEPARAT TARIFF för varje säkringsstorlek!
 
 ## Svenska elnätstariffer - Bakgrund
 
@@ -53,30 +91,12 @@ Svenska elnätstariffer består typiskt av:
 
 1. **Fast avgift** (fixedPrice): Månads- eller årsavgift som inte beror på förbrukning
 2. **Energiavgift** (energyPrice): Pris per kWh, ofta tidsdifferentierat
-3. **Effektavgift** (powerPrice): Pris per kW - VIKTIGT att fånga komplexiteten!
+3. **Effektavgift** (powerPrice): Pris per kW - kräver peakIdentificationSettings!
 
-## Effektavgifter - VIKTIGT!
+## Tidsdifferentiering - Standardmönster
 
-Effektavgifter är ofta komplexa. Fånga ALLA detaljer:
-
-- **Beräkningsmetod**: Hur beräknas effekttoppen?
-  - "Medelvärde av 3 högsta topparna på olika dygn" = numberOfPeaksForAverageCalculation: 3
-  - "Högsta timeffekten under månaden" = numberOfPeaksForAverageCalculation: 1
-
-- **Tidsfaktorer**: Används reduktion nattetid?
-  - "Natt (22-06) räknas som halv effekt" = lägg i description
-  - "Effekttopp kl 22-06 multipliceras med 0.5" = lägg i description
-
-- **Säsongsvariationer**: Olika pris vinter/sommar?
-  - Skapa separata komponenter för vinter och sommar med recurringPeriods
-
-## Tidsdifferentiering
-
-Vanliga mönster:
-- "Höglast": vardagar 06:00-22:00
-- "Låglast": nätter 22:00-06:00 + helger + helgdagar
-- "Vinter": november-mars (högre priser)
-- "Sommar": april-oktober (lägre priser)
+- **Höglast**: vardagar 06:00-22:00 → `calendarPatternReferences: {"include": ["weekdays"], "exclude": ["holidays"]}`
+- **Låglast**: nätter + helger → `calendarPatternReferences: {"include": ["weekends", "holidays"]}` ELLER tidsintervall 22:00-06:00
 
 ## Output-format
 
@@ -84,86 +104,83 @@ Vanliga mönster:
 {
   "tariffs": [
     {
-      "name": "Tarifnamn",
-      "description": "Beskrivning med ALLA viktiga detaljer som inte passar i strukturen",
-      "validPeriod": {
-        "fromIncluding": "2025-01-01",
-        "toExcluding": null
-      },
+      "name": "Tariffnamn",
+      "description": "Beskrivning",
+      "validPeriod": {"fromIncluding": "2025-01-01", "toExcluding": null},
       "companyName": "Företagsnamn AB",
       "companyOrgNo": "",
+      "direction": "consumption",
+      "billingPeriod": "P1M",
       "fixedPrice": {
         "name": "Fast avgift",
-        "components": [
-          {
-            "name": "Abonnemangsavgift",
-            "type": "fixed",
-            "price": {"priceExVat": 100, "priceIncVat": 125, "currency": "SEK"},
-            "pricedPeriod": "P1M"
-          }
-        ]
+        "components": [{
+          "name": "Abonnemangsavgift",
+          "type": "fixed",
+          "price": {"priceExVat": 100, "priceIncVat": 125, "currency": "SEK"},
+          "pricedPeriod": "P1M"
+        }]
       },
       "energyPrice": {
         "name": "Energiavgift",
-        "components": [
-          {
-            "name": "Överföringsavgift höglast",
-            "description": "Vardagar 06-22",
-            "type": "fixed",
-            "price": {"priceExVat": 0.20, "priceIncVat": 0.25, "currency": "SEK"},
-            "unit": "kWh",
-            "recurringPeriods": [
-              {
-                "reference": "main",
-                "frequency": "P1D",
-                "activePeriods": [
-                  {
-                    "fromIncluding": "06:00:00",
-                    "toExcluding": "22:00:00",
-                    "calendarPatternReferences": {"include": ["weekdays"], "exclude": ["holidays"]}
-                  }
-                ]
-              }
-            ]
-          }
-        ]
+        "components": [{
+          "name": "Överföringsavgift höglast",
+          "type": "variable",
+          "price": {"priceExVat": 0.20, "priceIncVat": 0.25, "currency": "SEK"},
+          "unit": "kWh",
+          "recurringPeriods": [{
+            "reference": "main",
+            "frequency": "P1D",
+            "activePeriods": [{
+              "fromIncluding": "06:00:00",
+              "toExcluding": "22:00:00",
+              "calendarPatternReferences": {"include": ["weekdays"], "exclude": ["holidays"]}
+            }]
+          }]
+        }]
       },
       "powerPrice": {
         "name": "Effektavgift",
-        "description": "VIKTIG INFO: Baseras på medelvärde av 3 högsta effekttopparna på olika dygn. Nattetid (22-06) räknas som halv effekt.",
-        "components": [
-          {
-            "name": "Effektavgift",
-            "description": "Snitt av 3 högsta toppar. Natteffekt (22-06) räknas som 50%.",
-            "type": "peak",
-            "price": {"priceExVat": 40, "priceIncVat": 50, "currency": "SEK"},
-            "unit": "kW",
-            "peakIdentificationSettings": {
-              "peakFunction": "peak(main)",
-              "peakIdentificationPeriod": "P1M",
-              "peakDuration": "PT1H",
-              "numberOfPeaksForAverageCalculation": 3
-            }
+        "description": "Beräknas på medelvärde av 3 högsta toppar",
+        "components": [{
+          "name": "Effektavgift",
+          "type": "peak",
+          "price": {"priceExVat": 40, "priceIncVat": 50, "currency": "SEK"},
+          "unit": "kW",
+          "peakIdentificationSettings": {
+            "peakFunction": "peak(main)",
+            "peakIdentificationPeriod": "P1M",
+            "peakDuration": "PT1H",
+            "numberOfPeaksForAverageCalculation": 3
           }
-        ]
+        }]
       }
     }
-  ]
+  ],
+  "warnings": ["Lista med potentiella problem eller osäkerheter"]
 }
 ```
 
+## Validering och Varningar
+
+Inkludera alltid ett `warnings`-fält med en array av strängar som beskriver:
+- Oklarheter i källmaterialet
+- Antaganden du har gjort
+- Information som saknades och fylldes i med standardvärden
+- Potentiella fel i extraktionen
+- Om priser verkar ovanligt höga eller låga
+
 ## Viktiga regler
 
-1. Alla priser ska ha både exkl. och inkl. moms (25%)
-2. Använd ISO 8601 för datum och tider
+1. Alla priser MÅSTE ha både `priceExVat` och `priceIncVat` (25% moms i Sverige)
+2. Använd ISO 8601 för datum (YYYY-MM-DD) och tider (HH:MM:SS)
 3. EXTRAHERA företagsnamn från innehållet (URL, sidhuvud, etc.)
-4. Inkludera alltid `validPeriod` - använd innevarande år om inte annat anges
-5. Returnera ENDAST JSON, ingen annan text
-6. **VIKTIGT**: Fånga ALLA detaljer om effektberäkning i description-fält!
-7. Om det finns komplexa regler (nattrabatt på effekt, etc.) - beskriv dem tydligt!
-8. **ÅRSAVGIFTER**: Om avgiften anges per år (kr/år), använd "pricedPeriod": "P1Y", INTE "P1M"!
-9. **SKAPA MÅNGA TARIFFER**: Varje säkringsstorlek (16A, 20A, 25A...) ska bli en EGEN tariff!
-10. **SPOTPRIS**: Om överföringsavgift är "spotprisbaserad" eller "variabel", skriv det i description och använd ett typiskt medelvärde som pris.
+4. `validPeriod.fromIncluding` är OBLIGATORISK - använd 2025-01-01 om inte annat anges
+5. Returnera ENDAST giltig JSON, ingen annan text före eller efter
+6. **EFFEKTAVGIFTER KRÄVER peakIdentificationSettings** - beskriv beräkningsmetoden!
+7. **ÅRSAVGIFTER**: Om avgiften anges per år (kr/år), använd `"pricedPeriod": "P1Y"`
+8. **SKAPA MÅNGA TARIFFER**: Varje säkringsstorlek ska bli en EGEN tariff!
+9. **ENERGIAVGIFTER**: Använd `type: "variable"` för kWh-priser (inte "fixed")
+10. **SPOTPRIS**: Om priset är "variabelt" eller "spotbaserat", skriv det i description
 """
 
 
@@ -178,9 +195,9 @@ class TariffParser:
         self.client = anthropic.Anthropic(api_key=self.api_key)
 
     async def parse_text(
-        self, text: str, company_name: str | None = None, progress_callback=None
+        self, text: str, company_name: str | None = None
     ) -> TariffsResponse:
-        """Parse tariff information from text using Opus with streaming."""
+        """Parse tariff information from text using Claude Sonnet."""
         # Truncate input if too long
         max_input_chars = 50000
         if len(text) > max_input_chars:
@@ -199,18 +216,63 @@ VIKTIGT:
 Tariffbeskrivning:
 {text}"""
 
-        # Use streaming for Opus (required for long operations)
-        content = ""
-        with self.client.messages.stream(
-            model="claude-opus-4-20250514",
-            max_tokens=16384,
+        response = self.client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=16000,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_prompt}],
-        ) as stream:
-            for text_chunk in stream.text_stream:
-                content += text_chunk
+        )
 
+        content = response.content[0].text
         return self._parse_response(content)
+
+    def parse_text_streaming(
+        self, text: str, company_name: str | None = None
+    ):
+        """Generator that yields progress updates and final result."""
+        # Truncate input if too long
+        max_input_chars = 50000
+        if len(text) > max_input_chars:
+            text = text[:max_input_chars] + "\n\n[... innehåll trunkerat för längd ...]"
+
+        user_prompt = f"""Analysera följande tariffbeskrivning och konvertera till RISE JSON-format.
+
+VIKTIGT:
+- Returnera ENDAST giltig JSON, ingen annan text
+- Skapa EN SEPARAT TARIFF för varje säkringsstorlek (16A, 20A, 25A, etc.)
+- Inkludera calendarPatterns för weekdays, weekends, holidays
+- Om ingen tariff hittas, returnera: {{"tariffs": []}}
+
+{f"Företagsnamn: {company_name}" if company_name else ""}
+
+Tariffbeskrivning:
+{text}"""
+
+        content = ""
+
+        try:
+            # Simple streaming without extended thinking
+            with self.client.messages.stream(
+                model="claude-opus-4-20250514",
+                max_tokens=16000,
+                system=SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": user_prompt}],
+            ) as stream:
+                # Just accumulate the text
+                for text_chunk in stream.text_stream:
+                    content += text_chunk
+
+            # Parse and yield final result
+            if content:
+                result = self._parse_response(content)
+                yield {'type': 'result', 'data': result.model_dump(by_alias=True)}
+            else:
+                yield {'type': 'error', 'message': 'AI returnerade ingen textdata'}
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            yield {'type': 'error', 'message': f'AI-fel: {str(e)}'}
 
     async def parse_pdf_content(
         self, pdf_text: str, company_name: str | None = None
@@ -222,29 +284,32 @@ Tariffbeskrivning:
         self, existing_tariffs: dict, instruction: str
     ) -> TariffsResponse:
         """Improve existing tariff data based on user instruction."""
-        existing_json = json.dumps(existing_tariffs, indent=2, ensure_ascii=False)
+        # Use compact JSON to save tokens
+        existing_json = json.dumps(existing_tariffs, ensure_ascii=False, separators=(',', ':'))
 
-        user_prompt = f"""Du har fått befintlig tariffdata i JSON-format och en instruktion från användaren.
-Din uppgift är att UPPDATERA tariffdata enligt instruktionen.
+        # Simple system prompt for modifications (not the full RISE spec)
+        improve_system = """Du är expert på RISE Eltariff API-standarden.
+Din uppgift är att modifiera befintlig tariff-JSON enligt användarens instruktion.
 
-VIKTIGT:
+REGLER:
+- Returnera ENDAST giltig JSON, ingen annan text
 - Behåll ALL befintlig data som inte explicit ska ändras
-- Returnera ENDAST giltig JSON i samma RISE-format
-- Om instruktionen är otydlig, gör ditt bästa för att tolka den
-- Behåll samma ID:n och struktur om möjligt
+- Följ RISE-standarden: camelCase fältnamn, priser med priceExVat/priceIncVat
+- Inkludera både tariffs och calendarPatterns i svaret"""
 
-BEFINTLIG TARIFFDATA:
+        user_prompt = f"""Modifiera denna tariff-JSON enligt instruktionen.
+
+JSON:
 {existing_json}
 
-ANVÄNDARENS INSTRUKTION:
-{instruction}
+INSTRUKTION: {instruction}
 
-Returnera den uppdaterade tariffdata som komplett JSON (inkludera tariffs och calendarPatterns)."""
+Returnera den uppdaterade JSON:en (endast JSON, ingen förklaring):"""
 
         response = self.client.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=8192,
-            system=SYSTEM_PROMPT,
+            max_tokens=16000,
+            system=improve_system,
             messages=[{"role": "user", "content": user_prompt}],
         )
 
@@ -332,9 +397,15 @@ Formatera svaret som JSON:
             tariff = self._parse_tariff(t)
             tariffs.append(tariff)
 
+        # Extract AI-generated warnings
+        warnings = data.get("warnings", [])
+        if not isinstance(warnings, list):
+            warnings = []
+
         return TariffsResponse(
             tariffs=tariffs,
             calendarPatterns=DEFAULT_CALENDAR_PATTERNS,
+            warnings=warnings,
         )
 
     def _repair_json(self, content: str) -> str:

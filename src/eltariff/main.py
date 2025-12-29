@@ -21,7 +21,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-from .api import explore, generate, parse
+from .api import explore, generate, parse, results
 
 # Rate limiter - 10 requests per hour for AI endpoints
 limiter = Limiter(key_func=get_remote_address)
@@ -53,6 +53,7 @@ app.add_middleware(
 app.include_router(parse.router)
 app.include_router(generate.router)
 app.include_router(explore.router)
+app.include_router(results.router)
 
 # Setup templates and static files
 BASE_DIR = Path(__file__).parent
@@ -74,6 +75,15 @@ async def home(request: Request):
 async def explorer(request: Request):
     """Serve the API explorer page."""
     return templates.TemplateResponse("explorer.html", {"request": request})
+
+
+@app.get("/r/{result_id}", response_class=HTMLResponse)
+async def shared_result(request: Request, result_id: str):
+    """Serve the main page with a pre-loaded shared result."""
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "shared_result_id": result_id,
+    })
 
 
 @app.get("/health")

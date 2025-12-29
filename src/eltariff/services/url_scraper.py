@@ -169,10 +169,28 @@ class URLScraper:
         Returns:
             Clean markdown content optimized for LLM processing
         """
-        from crawl4ai import AsyncWebCrawler
+        from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig
 
-        async with AsyncWebCrawler() as crawler:
-            result = await crawler.arun(url=url)
+        # Browser config for JS-heavy sites
+        browser_config = BrowserConfig(
+            headless=True,
+            verbose=False,
+        )
+
+        # Crawler config: wait for JS content, handle cookie banners
+        run_config = CrawlerRunConfig(
+            # Wait for page to fully load
+            wait_until="networkidle",
+            # Wait extra time for JS to render
+            delay_before_return_html=2.0,
+            # Remove cookie banners and other overlays
+            remove_overlay_elements=True,
+            # Get clean markdown for LLM
+            word_count_threshold=10,
+        )
+
+        async with AsyncWebCrawler(config=browser_config) as crawler:
+            result = await crawler.arun(url=url, config=run_config)
 
             if not result.markdown or not result.markdown.strip():
                 raise ValueError("Crawl4AI returned empty content")

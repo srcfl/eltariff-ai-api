@@ -41,14 +41,6 @@
         .loading { opacity: 0.5; pointer-events: none; }
         pre { white-space: pre-wrap; word-wrap: break-word; }
         .gradient-bg { background: linear-gradient(135deg, #2B2B2B 0%, #2F4A66 100%); }
-        @keyframes progress {
-            0% { width: 0%; margin-left: 0%; }
-            50% { width: 30%; margin-left: 35%; }
-            100% { width: 0%; margin-left: 100%; }
-        }
-        .animate-progress {
-            animation: progress 2s ease-in-out infinite;
-        }
         /* Terminal styling */
         .terminal {
             background: #1a1a2e;
@@ -61,14 +53,6 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-5px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-        .cursor-blink::after {
-            content: '▊';
-            animation: blink 1s infinite;
-        }
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
         }
     </style>
 </head>
@@ -152,7 +136,7 @@
 
         <div class="grid lg:grid-cols-2 gap-8">
             <!-- Left: Input -->
-            <div class="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
+            <div id="input-section" class="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
                 <h2 class="text-xl font-semibold text-sourceful-grey mb-4">1. Ange tariffer</h2>
                 <p class="text-sm text-gray-500 mb-6">Fyll i ett eller flera av fälten nedan. AI:n extraherar automatiskt företagsnamn och tariffdata.</p>
 
@@ -213,13 +197,15 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                 <!-- Terminal Log -->
                 <div id="terminal-log" class="mt-6 hidden">
                     <div class="terminal rounded-lg overflow-hidden border border-gray-700">
-                        <div class="flex items-center gap-2 px-3 py-2 bg-gray-800 border-b border-gray-700">
-                            <div class="flex gap-1.5">
-                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        <div class="flex items-center justify-between px-3 py-2 bg-gray-800 border-b border-gray-700">
+                            <div class="flex items-center gap-2">
+                                <div class="flex gap-1.5">
+                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                </div>
+                                <span class="text-gray-400 text-xs ml-2">eltariff-ai — parsing</span>
                             </div>
-                            <span class="text-gray-400 text-xs ml-2">eltariff-ai — parsing</span>
                         </div>
                         <div id="terminal-content" class="p-4 h-48 overflow-y-auto text-gray-300">
                             <!-- Terminal lines added by JS -->
@@ -232,7 +218,7 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
             </div>
 
             <!-- Right: Result -->
-            <div class="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
+            <div id="result-section" class="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
                 <h2 class="text-xl font-semibold text-sourceful-grey mb-4">2. Resultat</h2>
 
                 <div id="result-placeholder" class="text-gray-400 text-center py-20">
@@ -256,8 +242,25 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                         </div>
                     </div>
 
+                    <!-- AI-generated warnings -->
+                    <div id="ai-warnings" class="hidden mb-6">
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div class="flex items-start gap-3">
+                                <svg class="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-red-800">AI identifierade problem</h4>
+                                    <ul id="warnings-list" class="mt-2 text-sm text-red-700 space-y-1 list-disc list-inside">
+                                        <!-- Warnings added by JS -->
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- AI Improvement Prompt -->
-                    <div class="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
+                    <div id="improve-section" class="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
                         <h4 class="font-medium text-purple-900 mb-2 flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
@@ -298,6 +301,34 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                                 <pre class="text-sm text-sourceful-grey"></pre>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Share section -->
+                    <div id="share-section" class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 class="font-medium text-blue-900 mb-2 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                            </svg>
+                            Spara och dela
+                        </h4>
+                        <div id="share-url-container" class="hidden">
+                            <div class="flex gap-2 mb-2">
+                                <input type="text" id="share-url" readonly
+                                       class="flex-1 bg-white border border-blue-200 rounded-lg px-3 py-2 text-sm text-blue-900 font-mono">
+                                <button onclick="copyShareUrl()" id="btn-copy"
+                                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm font-medium whitespace-nowrap">
+                                    Kopiera
+                                </button>
+                            </div>
+                            <p class="text-xs text-blue-600">Denna länk kan delas med kollegor eller sparas för senare.</p>
+                        </div>
+                        <button onclick="saveAndShare()" id="btn-share"
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm font-medium flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                            </svg>
+                            Skapa delbar länk
+                        </button>
                     </div>
 
                     <!-- Download options -->
@@ -626,16 +657,6 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
             content.scrollTop = content.scrollHeight;
         }
 
-        function termLogTyping(message) {
-            const content = document.getElementById('terminal-content');
-            const line = document.createElement('div');
-            line.className = 'terminal-line mb-1 cursor-blink';
-            line.innerHTML = `<span class="text-purple-400">🤖</span> <span class="text-purple-300">${message}</span>`;
-            content.appendChild(line);
-            content.scrollTop = content.scrollHeight;
-            return line;
-        }
-
         function showError(msg) {
             hideTerminal();
             const el = document.getElementById('parse-error');
@@ -643,15 +664,61 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
             el.classList.remove('hidden');
         }
 
-        function showResult(tariffs) {
+        async function showResult(tariffs, skipAutoSave = false) {
             parsedTariffs = tariffs;
             document.getElementById('result-placeholder').classList.add('hidden');
             document.getElementById('result-content').classList.remove('hidden');
             document.getElementById('tariff-preview').querySelector('pre').textContent =
                 JSON.stringify(tariffs, null, 2);
 
+            // Show AI warnings if any
+            const warnings = tariffs.warnings || [];
+            const warningsDiv = document.getElementById('ai-warnings');
+            const warningsList = document.getElementById('warnings-list');
+
+            if (warnings.length > 0) {
+                warningsList.innerHTML = warnings.map(w => `<li>${w}</li>`).join('');
+                warningsDiv.classList.remove('hidden');
+            } else {
+                warningsDiv.classList.add('hidden');
+            }
+
             // Render editable tariff cards
             renderTariffEditor(tariffs);
+
+            // Auto-save and get shareable URL (unless loading a shared result)
+            if (!skipAutoSave && tariffs.tariffs?.length > 0) {
+                await autoSaveResult();
+            }
+        }
+
+        async function autoSaveResult() {
+            try {
+                const sourceUrl = document.getElementById('tariff-url').value.trim() || null;
+
+                const response = await fetch('/api/results/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tariffs_json: parsedTariffs,
+                        source_url: sourceUrl
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+
+                    // Show share URL
+                    document.getElementById('share-url').value = result.url;
+                    document.getElementById('share-url-container').classList.remove('hidden');
+                    document.getElementById('btn-share').classList.add('hidden');
+
+                    // Update browser URL without reload
+                    window.history.pushState({}, '', `/r/${result.id}`);
+                }
+            } catch (e) {
+                console.error('Auto-save failed:', e);
+            }
         }
 
         function toggleRawJson() {
@@ -845,7 +912,18 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                 return;
             }
 
-            // Show terminal
+            // Track the analysis
+            await trackEvent('analysis_started', {
+                hasUrl,
+                hasPdf,
+                hasText,
+                url: hasUrl ? url : null
+            });
+
+            await analyzeWithFormData(url, fileInput, text, hasUrl, hasPdf, hasText);
+        }
+
+        async function analyzeWithFormData(url, fileInput, text, hasUrl, hasPdf, hasText) {
             showTerminal();
             termLog('Startar analys...', 'info');
 
@@ -867,28 +945,16 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                 formData.append('text', text);
             }
 
-            // Track the analysis
-            await trackEvent('analysis_started', {
-                hasUrl,
-                hasPdf,
-                hasText,
-                url: hasUrl ? url : null
-            });
-
             try {
                 termLog('Skickar till server...', 'info');
 
-                // AI analysis progress messages
+                // Progress messages while waiting
                 const progressMessages = [
-                    { delay: 1500, msg: 'Hämtar webbsida...', type: 'info' },
-                    { delay: 3000, msg: 'Extraherar text från innehåll...', type: 'info' },
-                    { delay: 5000, msg: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', type: 'info' },
-                    { delay: 5500, msg: 'AI-ANALYS: Opus 4.5', type: 'ai' },
-                    { delay: 7000, msg: '  → Identifierar företag och tariffer...', type: 'ai' },
-                    { delay: 10000, msg: '  → Extraherar priser och avgifter...', type: 'ai' },
-                    { delay: 15000, msg: '  → Skapar tariffer för varje säkring...', type: 'ai' },
-                    { delay: 20000, msg: '  → Validerar RISE-format...', type: 'ai' },
-                    { delay: 30000, msg: '  → Slutför JSON-struktur...', type: 'ai' },
+                    { delay: 2000, msg: 'Hämtar webbinnehåll...', type: 'info' },
+                    { delay: 5000, msg: 'AI analyserar tariffer med Sonnet 4...', type: 'ai' },
+                    { delay: 10000, msg: '  → Identifierar priser och avgifter...', type: 'ai' },
+                    { delay: 20000, msg: '  → Skapar RISE-format...', type: 'ai' },
+                    { delay: 35000, msg: '  → Fortfarande igång, snart klar...', type: 'ai' },
                 ];
 
                 const timeouts = progressMessages.map(p =>
@@ -912,7 +978,7 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                 const result = await response.json();
                 const tariffCount = result.tariffs?.length || 0;
 
-                termLog(`Analys klar!`, 'success');
+                termLog('Analys klar!', 'success');
                 termLog(`Hittade ${tariffCount} tariff(er)`, 'success');
 
                 // Track success
@@ -1227,6 +1293,119 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
             }, 4000);
         }
 
+        // ========== SHARING ==========
+        let currentShareUrl = null;
+
+        async function saveAndShare() {
+            if (!parsedTariffs) {
+                showError('Analysera tariffer först');
+                return;
+            }
+
+            const btn = document.getElementById('btn-share');
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Sparar...';
+
+            try {
+                const sourceUrl = document.getElementById('tariff-url').value.trim() || null;
+
+                const response = await fetch('/api/results/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tariffs_json: parsedTariffs,
+                        source_url: sourceUrl
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Kunde inte spara');
+                }
+
+                const result = await response.json();
+                currentShareUrl = result.url;
+
+                // Show share URL
+                document.getElementById('share-url').value = currentShareUrl;
+                document.getElementById('share-url-container').classList.remove('hidden');
+                btn.classList.add('hidden');
+
+                // Update browser URL without reload
+                window.history.pushState({}, '', `/r/${result.id}`);
+
+                await trackEvent('result_shared', { id: result.id });
+
+            } catch (e) {
+                showError(e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg> Skapa delbar länk';
+            }
+        }
+
+        function copyShareUrl() {
+            const urlInput = document.getElementById('share-url');
+            urlInput.select();
+            document.execCommand('copy');
+
+            const btn = document.getElementById('btn-copy');
+            btn.textContent = 'Kopierad!';
+            btn.classList.add('bg-green-600');
+            setTimeout(() => {
+                btn.textContent = 'Kopiera';
+                btn.classList.remove('bg-green-600');
+            }, 2000);
+        }
+
+        async function loadSharedResult(resultId) {
+            try {
+                const response = await fetch(`/api/results/${resultId}`);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        showError('Denna delningslänk hittades inte. Den kan ha utgått eller tagits bort.');
+                    } else {
+                        throw new Error('Kunde inte ladda delat resultat');
+                    }
+                    return;
+                }
+
+                const result = await response.json();
+
+                if (result.tariffs) {
+                    // Skip auto-save since this is already saved
+                    await showResult(result.tariffs, true);
+
+                    // Show view mode banner (hides improve/share, adds "Skapa egen" button)
+                    showViewModeBanner();
+                }
+            } catch (e) {
+                console.error('Error loading shared result:', e);
+                showError(e.message);
+            }
+        }
+
+        function showSharedResultNotification(sourceUrl) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 bg-blue-600 text-white px-4 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2 max-w-md';
+            notification.innerHTML = `
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                </svg>
+                <div>
+                    <div class="font-medium">Delat resultat laddat</div>
+                    ${sourceUrl ? `<div class="text-xs text-blue-200 truncate">Källa: ${sourceUrl}</div>` : ''}
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+
         // Handle Enter key in email modal
         document.getElementById('user-email').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -1241,8 +1420,47 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
             }
         });
 
+        // View mode - when viewing a shared result, hide editing UI
+        let isViewMode = false;
+
+        function enterViewMode() {
+            isViewMode = true;
+            // Hide input section
+            document.getElementById('input-section').classList.add('hidden');
+            // Make result section full width
+            document.getElementById('result-section').classList.add('lg:col-span-2');
+        }
+
+        function showViewModeBanner() {
+            // Hide "Förbättra med AI" section
+            document.getElementById('improve-section').classList.add('hidden');
+            // Hide share section (already shared)
+            document.getElementById('share-section').classList.add('hidden');
+            // Add banner at top of result
+            const resultSection = document.querySelector('#result-content');
+            const viewBanner = document.createElement('div');
+            viewBanner.className = 'mb-4 p-3 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-between';
+            viewBanner.innerHTML = `
+                <span class="text-sm text-gray-600">Du tittar på ett delat resultat</span>
+                <a href="/" class="bg-sourceful-green text-white px-4 py-2 rounded-lg hover:bg-sourceful-blue transition text-sm font-medium">
+                    Skapa egen tariff
+                </a>
+            `;
+            resultSection.insertBefore(viewBanner, resultSection.firstChild);
+        }
+
         // Run on page load
-        document.addEventListener('DOMContentLoaded', loadTemplateIfExists);
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check for shared result ID (passed from server or in URL)
+            const sharedResultId = '{{ shared_result_id | default("") }}';
+            if (sharedResultId) {
+                enterViewMode();
+                loadSharedResult(sharedResultId);
+            } else {
+                // Check for template from explorer
+                loadTemplateIfExists();
+            }
+        });
     </script>
 </body>
 </html>

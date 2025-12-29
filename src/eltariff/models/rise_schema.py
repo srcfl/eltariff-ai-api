@@ -23,6 +23,7 @@ class ComponentType(str, Enum):
     FIXED = "fixed"
     VARIABLE = "variable"
     PEAK = "peak"
+    DYNAMIC = "dynamic"
 
 
 class Currency(str, Enum):
@@ -158,6 +159,9 @@ class TariffsResponse(BaseModel):
     tariffs: list[Tariff]
     calendar_patterns: list[CalendarPattern] = Field(
         default_factory=list, alias="calendarPatterns"
+    )
+    warnings: list[str] = Field(
+        default_factory=list, description="AI-generated warnings about potential issues"
     )
 
     model_config = {"populate_by_name": True}

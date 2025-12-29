@@ -4,6 +4,7 @@ import json
 import os
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -18,6 +19,14 @@ class ImproveRequest(BaseModel):
     """Request to improve existing tariff data."""
     tariffs_json: str
     instruction: str
+
+
+class StreamRequest(BaseModel):
+    """Request for streaming analysis."""
+    url: str | None = None
+    text: str | None = None
+    company_name: str | None = None
+
 
 router = APIRouter(prefix="/api/parse", tags=["parse"])
 
@@ -268,3 +277,71 @@ async def improve_tariffs(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to improve: {str(e)}")
+
+
+@router.post("/stream")
+@limiter.limit("10/hour")
+async def stream_analysis(
+    request: Request,
+    body: StreamRequest,
+):
+    """Stream AI analysis with thinking process visible via SSE.
+
+    Returns Server-Sent Events with:
+    - type: thinking_start, thinking, text_start, text, block_stop, result, error
+    """
+    if not body.url and not body.text:
+        raise HTTPException(status_code=400, detail="Provide url or text")
+
+    async def generate_events():
+        try:
+            content_to_parse = ""
+
+            # Fetch URL content if provided
+            if body.url:
+                yield f"data: {json.dumps({'type': 'status', 'message': 'Hämtar URL...'})}\n\n"
+                try:
+                    scraper = URLScraper()
+                    content_to_parse = await scraper.scrape_url(body.url)
+                    yield f"data: {json.dumps({'type': 'status', 'message': f'Hämtade {len(content_to_parse)} tecken'})}\n\n"
+                except Exception as e:
+                    yield f"data: {json.dumps({'type': 'error', 'message': f'Kunde inte hämta URL: {str(e)}'})}\n\n"
+                    return
+
+            # Use text if provided (in addition to or instead of URL)
+            if body.text:
+                if content_to_parse:
+                    content_to_parse += f"\n\n=== FRITEXT ===\n{body.text}"
+                else:
+                    content_to_parse = body.text
+
+            if not content_to_parse.strip():
+                yield f"data: {json.dumps({'type': 'error', 'message': 'Inget innehåll att analysera'})}\n\n"
+                return
+
+            # Initialize parser
+            api_key = os.environ.get("ANTHROPIC_API_KEY")
+            if not api_key:
+                yield f"data: {json.dumps({'type': 'error', 'message': 'API-nyckel saknas'})}\n\n"
+                return
+
+            yield f"data: {json.dumps({'type': 'status', 'message': 'Startar AI-analys med Opus...'})}\n\n"
+
+            parser = TariffParser(api_key)
+
+            # Stream the analysis
+            for chunk in parser.parse_text_streaming(content_to_parse, body.company_name):
+                yield f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n"
+
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+
+    return StreamingResponse(
+        generate_events(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",  # Disable nginx buffering
+        }
+    )

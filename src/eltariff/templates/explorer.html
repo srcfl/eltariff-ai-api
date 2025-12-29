@@ -133,6 +133,27 @@
             <div id="explore-error" class="hidden bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg"></div>
         </div>
 
+        <!-- User Generated APIs -->
+        <div id="user-generated-section" class="bg-white rounded-lg shadow-lg p-6 mb-8 border border-gray-100">
+            <h2 class="text-lg font-semibold text-sourceful-grey mb-2">Användargenererade APIer</h2>
+            <p class="text-sm text-gray-500 mb-4">
+                Tariffer som skapats med AI-verktyget. Klicka för att se och redigera.
+            </p>
+            <div id="user-generated-loading" class="flex items-center gap-2 text-gray-400">
+                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Laddar...</span>
+            </div>
+            <div id="user-generated-empty" class="hidden text-gray-400 text-sm">
+                Inga användargenererade tariffer ännu. <a href="/" class="text-sourceful-green hover:underline">Skapa din första!</a>
+            </div>
+            <div id="user-generated-list" class="hidden grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
         <!-- Results -->
         <div id="results" class="hidden">
             <!-- Tariff Cards -->
@@ -190,6 +211,59 @@
     <script>
         let tariffsData = null;
         let priceChart = null;
+
+        // Load user-generated APIs on page load
+        document.addEventListener('DOMContentLoaded', loadUserGeneratedAPIs);
+
+        async function loadUserGeneratedAPIs() {
+            const loadingEl = document.getElementById('user-generated-loading');
+            const emptyEl = document.getElementById('user-generated-empty');
+            const listEl = document.getElementById('user-generated-list');
+
+            try {
+                const response = await fetch('/api/results/list/recent?limit=12');
+                const data = await response.json();
+
+                loadingEl.classList.add('hidden');
+
+                if (!data.results || data.results.length === 0) {
+                    emptyEl.classList.remove('hidden');
+                    return;
+                }
+
+                listEl.classList.remove('hidden');
+                listEl.innerHTML = data.results.map(result => {
+                    const date = new Date(result.created_at);
+                    const dateStr = date.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+                    const timeStr = date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+
+                    // Try to get a display name from source_url or tariff name
+                    let displayName = 'Okänd tariff';
+                    if (result.source_url) {
+                        try {
+                            const url = new URL(result.source_url);
+                            displayName = url.hostname.replace('www.', '');
+                        } catch (e) {
+                            displayName = result.source_url.substring(0, 30);
+                        }
+                    }
+
+                    return `
+                        <a href="/r/${result.id}" class="block p-3 border border-gray-200 rounded-lg hover:bg-sourceful-green/5 hover:border-sourceful-green transition">
+                            <div class="font-medium text-sourceful-grey text-sm truncate">${displayName}</div>
+                            <div class="text-xs text-gray-400 mt-1">${dateStr} ${timeStr}</div>
+                            <div class="text-xs text-sourceful-green mt-1">ID: ${result.id}</div>
+                        </a>
+                    `;
+                }).join('');
+
+            } catch (e) {
+                console.error('Failed to load user-generated APIs:', e);
+                loadingEl.classList.add('hidden');
+                emptyEl.textContent = 'Kunde inte ladda användargenererade APIer';
+                emptyEl.classList.remove('hidden');
+            }
+        }
 
         function showStatus(msg) {
             document.getElementById('explore-status').classList.remove('hidden');
