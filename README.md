@@ -43,12 +43,7 @@ uv run uvicorn eltariff.main:app --reload
 open http://localhost:8000
 ```
 
-## API-dokumentation
-
-- Swagger UI: http://localhost:8000/api/docs
-- ReDoc: http://localhost:8000/api/redoc
-
-## Endpoints
+## Interna endpoints
 
 | Endpoint | Metod | Beskrivning |
 |----------|-------|-------------|

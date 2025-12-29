@@ -31,8 +31,9 @@ app = FastAPI(
     title="Eltariff AI API",
     description="AI-drivet verktyg för att konvertera svenska elnätstariffer till RISE-standard API. Byggt av Sourceful Labs AB.",
     version="0.1.0",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc",
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
 )
 
 # Add rate limiter
