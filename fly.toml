@@ -1,8 +1,10 @@
-# Fly.io configuration for Eltariff AI API
-# See https://fly.io/docs/reference/configuration/ for information about this file.
+# fly.toml app configuration file generated for eltariff on 2025-12-29T11:16:07+01:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
 app = 'eltariff'
-primary_region = 'arn'  # Stockholm, Sweden
+primary_region = 'arn'
 
 [build]
   dockerfile = 'Dockerfile'
@@ -19,11 +21,6 @@ primary_region = 'arn'  # Stockholm, Sweden
   min_machines_running = 0
   processes = ['app']
 
-[[vm]]
-  memory = '512mb'
-  cpu_kind = 'shared'
-  cpus = 1
-
 [checks]
   [checks.health]
     port = 8000
@@ -31,3 +28,9 @@ primary_region = 'arn'  # Stockholm, Sweden
     interval = '30s'
     timeout = '5s'
     path = '/health'
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 512

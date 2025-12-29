@@ -13,7 +13,7 @@ from ..services.url_scraper import URLScraper
 
 router = APIRouter(prefix="/api/parse", tags=["parse"])
 
-# Rate limiter - 10 requests per minute per IP
+# Rate limiter - 10 requests per hour per IP (to prevent API abuse)
 limiter = Limiter(key_func=get_remote_address)
 
 # Security limits
@@ -23,13 +23,13 @@ MAX_URL_LENGTH = 2048  # Standard URL length limit
 
 
 @router.post("/text", response_model=TariffsResponse)
-@limiter.limit("10/minute")
+@limiter.limit("10/hour")
 async def parse_text(
     request: Request,
     content: str = Form(..., description="Tariff description text"),
     company_name: str | None = Form(None, description="Company name"),
 ):
-    """Parse tariff information from text. Rate limited to 10 requests/minute."""
+    """Parse tariff information from text. Rate limited to 10 requests/hour."""
     # Input validation
     if len(content) > MAX_TEXT_LENGTH:
         raise HTTPException(
@@ -55,13 +55,13 @@ async def parse_text(
 
 
 @router.post("/pdf", response_model=TariffsResponse)
-@limiter.limit("10/minute")
+@limiter.limit("10/hour")
 async def parse_pdf(
     request: Request,
     file: UploadFile = File(..., description="PDF file with tariff information"),
     company_name: str | None = Form(None, description="Company name"),
 ):
-    """Parse tariff information from a PDF file. Rate limited to 10 requests/minute."""
+    """Parse tariff information from a PDF file. Rate limited to 10 requests/hour."""
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="File must be a PDF")
 
@@ -100,13 +100,13 @@ async def parse_pdf(
 
 
 @router.post("/url", response_model=TariffsResponse)
-@limiter.limit("10/minute")
+@limiter.limit("10/hour")
 async def parse_url(
     request: Request,
     url: str = Form(..., description="URL with tariff information"),
     company_name: str | None = Form(None, description="Company name"),
 ):
-    """Parse tariff information from a URL. Rate limited to 10 requests/minute."""
+    """Parse tariff information from a URL (supports both web pages and PDFs). Rate limited to 10 requests/hour."""
     # URL validation
     if len(url) > MAX_URL_LENGTH:
         raise HTTPException(

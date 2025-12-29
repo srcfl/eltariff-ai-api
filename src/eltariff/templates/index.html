@@ -70,7 +70,7 @@
                 Ladda upp din tariffbeskrivning, så genererar AI:n ett komplett deployment-paket med Docker.
             </p>
             <p class="text-sm text-sourceful-grey/60 mt-2">
-                Rate limit: 10 förfrågningar per minut.
+                Rate limit: 10 AI-analyser per timme.
             </p>
         </div>
 
@@ -167,26 +167,66 @@ Gäller från 2025-01-01"></textarea>
                 </div>
 
                 <div id="result-content" class="hidden">
-                    <!-- Tariff preview -->
+                    <!-- AI Warning -->
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                        <div class="flex items-start gap-3">
+                            <svg class="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <div>
+                                <h4 class="font-semibold text-amber-800">AI-genererat resultat</h4>
+                                <p class="text-sm text-amber-700 mt-1">
+                                    Detta resultat är automatiskt genererat av AI och kan innehålla fel.
+                                    <strong>Granska alla värden noggrant</strong> innan du använder dem i produktion.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tariff Editor -->
                     <div class="mb-6">
-                        <h3 class="font-medium text-sourceful-grey mb-2">Tolkade tariffer:</h3>
-                        <div id="tariff-preview" class="bg-gray-50 rounded-lg p-4 max-h-60 overflow-auto border border-gray-200">
-                            <pre class="text-sm text-sourceful-grey"></pre>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-medium text-sourceful-grey">Granska och redigera tariffer:</h3>
+                            <button onclick="toggleRawJson()" class="text-sm text-sourceful-green hover:underline">
+                                Visa/dölj JSON
+                            </button>
+                        </div>
+
+                        <!-- Editable tariff cards -->
+                        <div id="tariff-editor" class="space-y-4">
+                            <!-- Filled by JavaScript -->
+                        </div>
+
+                        <!-- Raw JSON (hidden by default) -->
+                        <div id="tariff-json" class="hidden mt-4">
+                            <div id="tariff-preview" class="bg-gray-50 rounded-lg p-4 max-h-60 overflow-auto border border-gray-200">
+                                <pre class="text-sm text-sourceful-grey"></pre>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Download options -->
                     <div class="border-t border-gray-200 pt-4">
-                        <h3 class="font-medium text-sourceful-grey mb-3">3. Generera deployment-paket</h3>
-                        <button onclick="downloadPackage()" id="btn-download"
-                                class="w-full bg-sourceful-teal text-sourceful-grey py-3 px-4 rounded-lg hover:bg-sourceful-teal/80 transition flex items-center justify-center gap-2 font-bold">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                            </svg>
-                            Ladda ner ZIP-paket
-                        </button>
+                        <h3 class="font-medium text-sourceful-grey mb-3">3. Ladda ner</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="downloadPackage()" id="btn-download"
+                                    class="bg-sourceful-teal text-sourceful-grey py-3 px-4 rounded-lg hover:bg-sourceful-teal/80 transition flex items-center justify-center gap-2 font-bold">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                </svg>
+                                ZIP-paket
+                            </button>
+                            <button onclick="downloadExcel()" id="btn-excel"
+                                    class="bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2 font-bold">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Excel
+                            </button>
+                        </div>
                         <p class="text-sm text-gray-500 mt-2">
-                            Paketet innehåller: app.py, Dockerfile, docker-compose.yml, OpenAPI-spec och instruktioner.
+                            ZIP innehåller: app.py, Dockerfile, docker-compose.yml, OpenAPI-spec.
+                            Excel är för presentation och granskning.
                         </p>
                     </div>
 
@@ -277,6 +317,108 @@ Gäller från 2025-01-01"></textarea>
             document.getElementById('result-content').classList.remove('hidden');
             document.getElementById('tariff-preview').querySelector('pre').textContent =
                 JSON.stringify(tariffs, null, 2);
+
+            // Render editable tariff cards
+            renderTariffEditor(tariffs);
+        }
+
+        function toggleRawJson() {
+            const jsonDiv = document.getElementById('tariff-json');
+            jsonDiv.classList.toggle('hidden');
+        }
+
+        function renderTariffEditor(tariffs) {
+            const container = document.getElementById('tariff-editor');
+            container.innerHTML = '';
+
+            if (!tariffs.tariffs) return;
+
+            tariffs.tariffs.forEach((tariff, idx) => {
+                const card = document.createElement('div');
+                card.className = 'border border-gray-200 rounded-lg p-4 bg-gray-50';
+                card.innerHTML = `
+                    <div class="mb-4">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Tariffnamn</label>
+                        <input type="text" value="${tariff.name || ''}"
+                               onchange="updateTariff(${idx}, 'name', this.value)"
+                               class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-sourceful-green focus:border-sourceful-green">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Beskrivning</label>
+                        <input type="text" value="${tariff.description || ''}"
+                               onchange="updateTariff(${idx}, 'description', this.value)"
+                               class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-sourceful-green focus:border-sourceful-green">
+                    </div>
+
+                    ${renderPriceSection('Fasta avgifter', tariff.fixedPrice, idx, 'fixedPrice')}
+                    ${renderPriceSection('Energiavgifter (kr/kWh)', tariff.energyPrice, idx, 'energyPrice')}
+                    ${renderPriceSection('Effektavgifter (kr/kW)', tariff.powerPrice, idx, 'powerPrice')}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderPriceSection(title, priceElement, tariffIdx, priceType) {
+            if (!priceElement || !priceElement.components || !priceElement.components.length) {
+                return '';
+            }
+
+            let rows = priceElement.components.map((comp, compIdx) => `
+                <tr class="border-b border-gray-100">
+                    <td class="py-2 pr-2">
+                        <input type="text" value="${comp.name || ''}"
+                               onchange="updateComponent(${tariffIdx}, '${priceType}', ${compIdx}, 'name', this.value)"
+                               class="w-full border border-gray-200 rounded px-2 py-1 text-sm">
+                    </td>
+                    <td class="py-2 px-2">
+                        <input type="number" step="0.01" value="${comp.price?.priceIncVat || 0}"
+                               onchange="updateComponent(${tariffIdx}, '${priceType}', ${compIdx}, 'priceIncVat', parseFloat(this.value))"
+                               class="w-20 border border-gray-200 rounded px-2 py-1 text-sm text-right">
+                    </td>
+                    <td class="py-2 pl-2 text-sm text-gray-500">${comp.unit || (priceType === 'fixedPrice' ? 'kr' : '')}</td>
+                </tr>
+            `).join('');
+
+            return `
+                <div class="mb-3">
+                    <h4 class="text-xs font-semibold text-sourceful-grey mb-2 uppercase tracking-wide">${title}</h4>
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-left text-xs text-gray-500 border-b">
+                                <th class="pb-1">Namn</th>
+                                <th class="pb-1">Pris</th>
+                                <th class="pb-1">Enhet</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function updateTariff(idx, field, value) {
+            if (parsedTariffs && parsedTariffs.tariffs[idx]) {
+                parsedTariffs.tariffs[idx][field] = value;
+                updateJsonPreview();
+            }
+        }
+
+        function updateComponent(tariffIdx, priceType, compIdx, field, value) {
+            if (parsedTariffs?.tariffs[tariffIdx]?.[priceType]?.components[compIdx]) {
+                if (field === 'priceIncVat') {
+                    parsedTariffs.tariffs[tariffIdx][priceType].components[compIdx].price.priceIncVat = value;
+                    // Auto-calculate ex VAT (25%)
+                    parsedTariffs.tariffs[tariffIdx][priceType].components[compIdx].price.priceExVat = value / 1.25;
+                } else {
+                    parsedTariffs.tariffs[tariffIdx][priceType].components[compIdx][field] = value;
+                }
+                updateJsonPreview();
+            }
+        }
+
+        function updateJsonPreview() {
+            document.getElementById('tariff-preview').querySelector('pre').textContent =
+                JSON.stringify(parsedTariffs, null, 2);
         }
 
         async function parseText() {
@@ -413,6 +555,49 @@ Gäller från 2025-01-01"></textarea>
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = companyName.toLowerCase().replace(/\s+/g, '-') + '-tariff-api.zip';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+
+                hideStatus();
+            } catch (e) {
+                showError(e.message);
+            }
+        }
+
+        async function downloadExcel() {
+            if (!parsedTariffs) {
+                showError('Analysera tariffer först');
+                return;
+            }
+
+            const companyName = document.getElementById('company-name').value || 'Mitt Elnätsbolag';
+            const companyOrgNo = document.getElementById('company-orgno').value || '556000-0000';
+
+            showStatus('Genererar Excel...');
+
+            try {
+                const response = await fetch('/api/generate/excel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tariffs_json: JSON.stringify(parsedTariffs),
+                        company_name: companyName,
+                        company_org_no: companyOrgNo
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Kunde inte generera Excel');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = companyName.toLowerCase().replace(/\s+/g, '-') + '-tariffer.xlsx';
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);

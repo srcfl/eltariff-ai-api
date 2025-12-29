@@ -1,4 +1,4 @@
-"""URL scraping service for extracting tariff information from web pages."""
+"""URL scraping service for extracting tariff information from web pages and PDFs."""
 
 import ipaddress
 import socket
@@ -6,6 +6,11 @@ from urllib.parse import urlparse
 
 import httpx
 from bs4 import BeautifulSoup
+
+from .pdf_parser import PDFParser
+
+# Maximum PDF size to download (10MB)
+MAX_PDF_DOWNLOAD_SIZE = 10 * 1024 * 1024
 
 # Allowed domains for RISE API fetching (whitelist for known safe APIs)
 ALLOWED_API_DOMAINS = [
@@ -92,7 +97,7 @@ class URLScraper:
         }
 
     async def scrape_url(self, url: str) -> str:
-        """Scrape text content from a URL.
+        """Scrape text content from a URL (supports both web pages and PDFs).
 
         Args:
             url: URL to scrape
@@ -101,7 +106,7 @@ class URLScraper:
             Extracted text content
 
         Raises:
-            ValueError: If URL is not safe to request
+            ValueError: If URL is not safe to request or PDF is too large
         """
         # Validate URL to prevent SSRF
         is_safe_url(url)
@@ -110,13 +115,26 @@ class URLScraper:
             response = await client.get(url, headers=self.headers, follow_redirects=True)
             response.raise_for_status()
 
-            content_type = response.headers.get("content-type", "")
+            content_type = response.headers.get("content-type", "").lower()
 
-            if "application/pdf" in content_type:
-                # If it's a PDF, return info that it needs PDF handling
-                raise ValueError(
-                    "URL points to a PDF file. Please download and upload it instead."
-                )
+            # Handle PDF files
+            if "application/pdf" in content_type or url.lower().endswith(".pdf"):
+                pdf_content = response.content
+
+                # Check PDF size
+                if len(pdf_content) > MAX_PDF_DOWNLOAD_SIZE:
+                    raise ValueError(
+                        f"PDF too large. Maximum {MAX_PDF_DOWNLOAD_SIZE // (1024*1024)}MB allowed."
+                    )
+
+                # Extract text from PDF
+                pdf_parser = PDFParser()
+                text = pdf_parser.extract_text_from_bytes(pdf_content)
+
+                if not text.strip():
+                    raise ValueError("Could not extract text from PDF")
+
+                return text
 
             # Parse HTML
             return self._extract_text(response.text)
