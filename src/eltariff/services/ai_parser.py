@@ -221,7 +221,7 @@ TEXT ATT ANALYSERA:
         if progress_callback:
             progress_callback("step1_done", "Steg 1 klar: Data strukturerad")
 
-        # ========== STEP 2: Generate RISE JSON with Opus ==========
+        # ========== STEP 2: Generate RISE JSON with Opus (streaming) ==========
         if progress_callback:
             progress_callback("step2_start", "Steg 2: Genererar RISE JSON med Opus...")
 
@@ -238,14 +238,16 @@ STRUKTURERAD INFORMATION:
 ORIGINAL TEXT (för referens):
 {text[:10000]}"""
 
-        step2_response = self.client.messages.create(
+        # Use streaming for Opus (required for long operations)
+        content = ""
+        with self.client.messages.stream(
             model="claude-opus-4-20250514",
             max_tokens=16384,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": step2_prompt}],
-        )
-
-        content = step2_response.content[0].text
+        ) as stream:
+            for text_chunk in stream.text_stream:
+                content += text_chunk
 
         if progress_callback:
             progress_callback("step2_done", "Steg 2 klar: RISE JSON genererad")
