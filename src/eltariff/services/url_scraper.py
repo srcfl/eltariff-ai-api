@@ -1,4 +1,7 @@
-"""URL scraping service for extracting tariff information from web pages and PDFs."""
+"""URL scraping service for extracting tariff information from web pages and PDFs.
+
+Uses Crawl4AI for LLM-optimized content extraction (open source, free).
+"""
 
 import ipaddress
 import socket
@@ -96,11 +99,14 @@ class URLScraper:
             "User-Agent": "Eltariff-AI-API/1.0 (https://github.com/sourceful-energy/eltariff-ai-api)"
         }
 
-    async def scrape_url(self, url: str) -> str:
+    async def scrape_url(self, url: str, use_crawl4ai: bool = True) -> str:
         """Scrape text content from a URL (supports both web pages and PDFs).
+
+        Uses Crawl4AI for LLM-optimized content extraction from HTML pages.
 
         Args:
             url: URL to scrape
+            use_crawl4ai: Use Crawl4AI for HTML (default True for better LLM results)
 
         Returns:
             Extracted text content
@@ -112,13 +118,17 @@ class URLScraper:
         is_safe_url(url)
 
         async with httpx.AsyncClient(timeout=self.timeout) as client:
-            response = await client.get(url, headers=self.headers, follow_redirects=True)
-            response.raise_for_status()
-
-            content_type = response.headers.get("content-type", "").lower()
+            # First check if it's a PDF by doing a HEAD request
+            try:
+                head_response = await client.head(url, headers=self.headers, follow_redirects=True)
+                content_type = head_response.headers.get("content-type", "").lower()
+            except Exception:
+                content_type = ""
 
             # Handle PDF files
             if "application/pdf" in content_type or url.lower().endswith(".pdf"):
+                response = await client.get(url, headers=self.headers, follow_redirects=True)
+                response.raise_for_status()
                 pdf_content = response.content
 
                 # Check PDF size
@@ -136,8 +146,38 @@ class URLScraper:
 
                 return text
 
-            # Parse HTML
+            # For HTML pages, use Crawl4AI for LLM-optimized extraction
+            if use_crawl4ai:
+                try:
+                    return await self._scrape_with_crawl4ai(url)
+                except Exception as e:
+                    # Fall back to basic scraping if Crawl4AI fails
+                    print(f"Crawl4AI failed, falling back to basic scraping: {e}")
+                    pass
+
+            # Basic HTML scraping fallback
+            response = await client.get(url, headers=self.headers, follow_redirects=True)
+            response.raise_for_status()
             return self._extract_text(response.text)
+
+    async def _scrape_with_crawl4ai(self, url: str) -> str:
+        """Use Crawl4AI for LLM-optimized content extraction.
+
+        Args:
+            url: URL to scrape
+
+        Returns:
+            Clean markdown content optimized for LLM processing
+        """
+        from crawl4ai import AsyncWebCrawler
+
+        async with AsyncWebCrawler() as crawler:
+            result = await crawler.arun(url=url)
+
+            if not result.markdown or not result.markdown.strip():
+                raise ValueError("Crawl4AI returned empty content")
+
+            return result.markdown
 
     def _extract_text(self, html: str) -> str:
         """Extract readable text from HTML.

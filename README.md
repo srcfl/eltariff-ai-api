@@ -54,18 +54,22 @@ open http://localhost:8000
 |----------|-------|-------------|
 | `/api/parse/text` | POST | Tolka tariff från fritext |
 | `/api/parse/pdf` | POST | Tolka tariff från PDF |
-| `/api/parse/url` | POST | Tolka tariff från webbsida |
-| `/api/generate/package` | POST | Generera deployment-paket (ZIP) |
-| `/api/explore/goteborg-energi` | GET | Hämta tariffer från Göteborg Energi |
+| `/api/parse/url` | POST | Tolka tariff från webbsida (inkl. PDF-länkar) |
+| `/api/parse/combined` | POST | Kombinera URL + PDF + fritext i en analys |
+| `/api/generate/json` | POST | Ladda ner tariffdata som JSON (RISE-format) |
+| `/api/generate/package` | POST | Generera deployment-paket (ZIP med Docker) |
+| `/api/generate/excel` | POST | Exportera till Excel |
+| `/api/explore/goteborg-energi` | GET | Hämta tariffer från Göteborg Energi (12 st) |
+| `/api/explore/tekniska-verken` | GET | Hämta tariffer från Tekniska verken (171 st) |
 | `/api/explore/fetch` | POST | Hämta tariffer från valfritt RISE-API |
 
 ## RISE Eltariff API-standard
 
-Detta verktyg följer [RISE Eltariff API-standarden](https://github.com/computation-hub/eltariff-api) för svenska elnätstariffer.
+Detta verktyg följer [RISE Eltariff API-standarden](https://github.com/RI-SE/Eltariff-API) för svenska elnätstariffer.
 
 ## Säkerhet
 
-- **Rate limiting**: 10 AI-anrop/minut per IP
+- **Rate limiting**: 10 AI-anrop/timme per IP
 - **SSRF-skydd**: Blockering av interna IP-adresser
 - **Inputvalidering**: Storleksbegränsningar på text (100KB) och PDF (10MB)
 

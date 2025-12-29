@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eltariff AI - Skapa RISE-kompatibelt API | Sourceful</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PMJLW2HNPT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-PMJLW2HNPT');
+    </script>
     <meta name="description" content="Konvertera dina elnätstariffer till maskinläsbart RISE API-format med AI. Gratis verktyg från Sourceful Labs AB.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,10 +38,17 @@
         }
     </script>
     <style>
-        .tab-active { border-bottom: 2px solid #017E7A; color: #017E7A; }
         .loading { opacity: 0.5; pointer-events: none; }
         pre { white-space: pre-wrap; word-wrap: break-word; }
         .gradient-bg { background: linear-gradient(135deg, #2B2B2B 0%, #2F4A66 100%); }
+        @keyframes progress {
+            0% { width: 0%; margin-left: 0%; }
+            50% { width: 30%; margin-left: 35%; }
+            100% { width: 0%; margin-left: 100%; }
+        }
+        .animate-progress {
+            animation: progress 2s ease-in-out infinite;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen font-sans">
@@ -72,85 +87,134 @@
             <p class="text-sm text-sourceful-grey/60 mt-2">
                 Rate limit: 10 AI-analyser per timme.
             </p>
+
+            <!-- Expandable RISE explanation -->
+            <details class="mt-4">
+                <summary class="cursor-pointer text-sourceful-green font-medium hover:underline">
+                    Vad är RISE Eltariff API-standarden?
+                </summary>
+                <div class="mt-3 pl-4 border-l-2 border-sourceful-green/30 text-sm text-sourceful-grey/80 space-y-3">
+                    <p>
+                        <strong>RISE Eltariff API</strong> är en öppen standard utvecklad av RISE (Research Institutes of Sweden)
+                        tillsammans med svenska elnätsbolag för att göra elnätstariffer maskinläsbara.
+                    </p>
+                    <p>
+                        <strong>Varför behövs detta?</strong> Idag publicerar de flesta elnätsbolag sina tariffer som PDF:er eller
+                        webbsidor som är svåra för appar och tjänster att tolka automatiskt. Med ett standardiserat API kan:
+                    </p>
+                    <ul class="list-disc list-inside space-y-1 ml-2">
+                        <li>Energiappar visa exakta kostnader för dina kunder</li>
+                        <li>Smarta hem optimera förbrukning baserat på tariffen</li>
+                        <li>Elbilsladdning schemaläggas när det är billigast</li>
+                        <li>Konsumenter jämföra elnätskostnader enkelt</li>
+                    </ul>
+                    <p>
+                        <strong>Hur fungerar standarden?</strong> API:et beskriver tre typer av avgifter:
+                    </p>
+                    <ul class="list-disc list-inside space-y-1 ml-2">
+                        <li><strong>fixedPrice</strong> - Fasta avgifter (abonnemang, säkringsavgift)</li>
+                        <li><strong>energyPrice</strong> - Energiavgifter per kWh (ofta tidsdifferentierade)</li>
+                        <li><strong>powerPrice</strong> - Effektavgifter per kW (baserat på förbrukningstoppar)</li>
+                    </ul>
+                    <p>
+                        Varje avgift kan ha tidsregler (höglast/låglast, sommar/vinter) och beräkningsregler
+                        (t.ex. snitt av 3 högsta effekttoppar).
+                    </p>
+                    <p class="text-xs text-gray-500 mt-2">
+                        <a href="https://github.com/RI-SE/Eltariff-API" class="text-sourceful-green hover:underline" target="_blank">
+                            Läs mer på GitHub
+                        </a> |
+                        <a href="/explorer" class="text-sourceful-green hover:underline">
+                            Se befintliga API:er
+                        </a>
+                    </p>
+                </div>
+            </details>
         </div>
 
         <div class="grid lg:grid-cols-2 gap-8">
             <!-- Left: Input -->
             <div class="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
-                <h2 class="text-xl font-semibold text-sourceful-grey mb-4">1. Beskriv dina tariffer</h2>
+                <h2 class="text-xl font-semibold text-sourceful-grey mb-4">1. Ange tariffer</h2>
+                <p class="text-sm text-gray-500 mb-6">Fyll i ett eller flera av fälten nedan. AI:n extraherar automatiskt företagsnamn och tariffdata.</p>
 
-                <!-- Tabs -->
-                <div class="border-b border-gray-200 mb-4">
-                    <nav class="flex gap-4">
-                        <button onclick="showTab('text')" id="tab-text" class="pb-2 tab-active font-medium">Fritext</button>
-                        <button onclick="showTab('pdf')" id="tab-pdf" class="pb-2 text-gray-500 font-medium">PDF</button>
-                        <button onclick="showTab('url')" id="tab-url" class="pb-2 text-gray-500 font-medium">URL</button>
-                    </nav>
-                </div>
-
-                <!-- Company info -->
+                <!-- URL input -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-sourceful-grey mb-1">Företagsnamn</label>
-                    <input type="text" id="company-name" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-sourceful-green focus:border-sourceful-green"
-                           placeholder="T.ex. Sundsvall Elnät AB">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-sourceful-grey mb-1">Organisationsnummer</label>
-                    <input type="text" id="company-orgno" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-sourceful-green focus:border-sourceful-green"
-                           placeholder="T.ex. 556123-4567">
-                </div>
-
-                <!-- Text input -->
-                <div id="input-text" class="input-panel">
-                    <label class="block text-sm font-medium text-sourceful-grey mb-1">Tariffbeskrivning</label>
-                    <textarea id="tariff-text" rows="10" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-sourceful-green focus:border-sourceful-green"
-                              placeholder="Beskriv era tariffer här...
-
-Exempel:
-Småhus och företag, max 63A:
-- Fast avgift: 185 kr/mån
-- Energiavgift:
-  - Höglast (06-22 vardagar): 0,25 kr/kWh
-  - Låglast (22-06 + helger): 0,15 kr/kWh
-- Effektavgift: 45 kr/kW (medel av 3 högsta topparna)
-
-Gäller från 2025-01-01"></textarea>
-                    <button onclick="parseText()" id="btn-parse-text"
-                            class="mt-4 w-full bg-sourceful-green text-white py-3 px-4 rounded-lg hover:bg-sourceful-blue transition font-medium">
-                        Analysera med AI
-                    </button>
+                    <label class="block text-sm font-medium text-sourceful-grey mb-1">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                            </svg>
+                            URL till tariffwebbsida
+                        </span>
+                    </label>
+                    <input type="url" id="tariff-url" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-sourceful-green focus:border-sourceful-green"
+                           placeholder="https://www.elnatbolag.se/tariffer">
                 </div>
 
                 <!-- PDF input -->
-                <div id="input-pdf" class="input-panel hidden">
-                    <label class="block text-sm font-medium text-sourceful-grey mb-1">Ladda upp PDF</label>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-sourceful-grey mb-1">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                            PDF-dokument
+                        </span>
+                    </label>
                     <input type="file" id="tariff-pdf" accept=".pdf"
-                           class="w-full border border-gray-300 rounded-lg p-3 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sourceful-green/10 file:text-sourceful-green file:font-medium">
-                    <button onclick="parsePDF()" id="btn-parse-pdf"
-                            class="mt-4 w-full bg-sourceful-green text-white py-3 px-4 rounded-lg hover:bg-sourceful-blue transition font-medium">
-                        Analysera PDF med AI
-                    </button>
+                           class="w-full border border-gray-300 rounded-lg p-3 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sourceful-green/10 file:text-sourceful-green file:font-medium hover:file:bg-sourceful-green/20 cursor-pointer">
                 </div>
 
-                <!-- URL input -->
-                <div id="input-url" class="input-panel hidden">
-                    <label class="block text-sm font-medium text-sourceful-grey mb-1">URL till tariffbeskrivning</label>
-                    <input type="url" id="tariff-url" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-sourceful-green focus:border-sourceful-green"
-                           placeholder="https://...">
-                    <button onclick="parseURL()" id="btn-parse-url"
-                            class="mt-4 w-full bg-sourceful-green text-white py-3 px-4 rounded-lg hover:bg-sourceful-blue transition font-medium">
-                        Hämta och analysera
-                    </button>
+                <!-- Text input -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-sourceful-grey mb-1">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Fritext / Klistra in
+                        </span>
+                    </label>
+                    <textarea id="tariff-text" rows="6" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-sourceful-green focus:border-sourceful-green"
+                              placeholder="Klistra in tariffbeskrivning här...
+
+Exempel:
+Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></textarea>
                 </div>
 
-                <!-- Status -->
-                <div id="parse-status" class="mt-4 hidden">
-                    <div class="flex items-center gap-2 text-sourceful-green">
-                        <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span id="status-text">Analyserar...</span>
+                <!-- Analyze button -->
+                <button onclick="analyzeAll()" id="btn-analyze"
+                        class="w-full bg-sourceful-green text-white py-4 px-4 rounded-lg hover:bg-sourceful-blue transition font-semibold text-lg flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                    Analysera med AI
+                </button>
+
+                <!-- AI Thinking Status -->
+                <div id="parse-status" class="mt-6 hidden">
+                    <div class="bg-gradient-to-r from-sourceful-green/10 to-sourceful-blue/10 rounded-lg p-4 border border-sourceful-green/20">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="relative">
+                                <div class="w-10 h-10 rounded-full bg-sourceful-green/20 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-sourceful-green animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                    </svg>
+                                </div>
+                                <span class="absolute -bottom-1 -right-1 flex h-3 w-3">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sourceful-teal opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-sourceful-green"></span>
+                                </span>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-sourceful-grey">AI analyserar...</div>
+                                <div class="text-sm text-gray-500" id="status-text">Läser in data</div>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                            <div class="bg-sourceful-green h-1.5 rounded-full animate-progress"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -208,32 +272,92 @@ Gäller från 2025-01-01"></textarea>
                     <!-- Download options -->
                     <div class="border-t border-gray-200 pt-4">
                         <h3 class="font-medium text-sourceful-grey mb-3">3. Ladda ner</h3>
-                        <div class="grid grid-cols-2 gap-3">
-                            <button onclick="downloadPackage()" id="btn-download"
-                                    class="bg-sourceful-teal text-sourceful-grey py-3 px-4 rounded-lg hover:bg-sourceful-teal/80 transition flex items-center justify-center gap-2 font-bold">
+
+                        <!-- JSON download - primary for data -->
+                        <div class="mb-4">
+                            <button onclick="downloadJson()" id="btn-json"
+                                    class="w-full bg-sourceful-green text-white py-3 px-4 rounded-lg hover:bg-sourceful-blue transition flex items-center justify-center gap-2 font-bold">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                 </svg>
-                                ZIP-paket
+                                Ladda ner JSON (RISE-format)
+                            </button>
+                            <p class="text-xs text-gray-500 mt-1">
+                                Tariffdata i RISE API-standardformat. Kan användas direkt i din egen implementation.
+                            </p>
+                        </div>
+
+                        <!-- Secondary options -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="downloadPackage()" id="btn-download"
+                                    class="bg-sourceful-grey text-white py-2.5 px-4 rounded-lg hover:bg-sourceful-blue transition flex items-center justify-center gap-2 font-medium text-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                                </svg>
+                                Docker-paket (ZIP)
                             </button>
                             <button onclick="downloadExcel()" id="btn-excel"
-                                    class="bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2 font-bold">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    class="bg-green-600 text-white py-2.5 px-4 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2 font-medium text-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
-                                Excel
+                                Excel (granskning)
                             </button>
                         </div>
-                        <p class="text-sm text-gray-500 mt-2">
-                            ZIP innehåller: app.py, Dockerfile, docker-compose.yml, OpenAPI-spec.
-                            Excel är för presentation och granskning.
+                        <p class="text-xs text-gray-500 mt-2">
+                            <strong>Docker-paket:</strong> Komplett färdigt API med app.py, Dockerfile, docker-compose.yml.<br>
+                            <strong>Excel:</strong> För presentation, granskning och delning med kollegor.
                         </p>
                     </div>
 
-                    <!-- Preview files -->
+                    <!-- API Preview -->
                     <div class="mt-6 border-t border-gray-200 pt-4">
+                        <button onclick="toggleApiPreview()" class="text-sourceful-green text-sm hover:underline font-medium flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            Förhandsgranska ditt API
+                        </button>
+                        <div id="api-preview" class="hidden mt-4">
+                            <div class="bg-sourceful-blue/5 border border-sourceful-blue/20 rounded-lg p-4">
+                                <h4 class="font-medium text-sourceful-grey mb-3">Så här kommer ditt API se ut:</h4>
+
+                                <div class="space-y-3">
+                                    <!-- Endpoint 1 -->
+                                    <div class="bg-white rounded border border-gray-200 overflow-hidden">
+                                        <div class="flex items-center gap-2 px-3 py-2 bg-gray-50 border-b">
+                                            <span class="bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded">GET</span>
+                                            <code class="text-sm text-sourceful-grey">/gridtariff/v0/tariffs</code>
+                                        </div>
+                                        <div class="p-3">
+                                            <pre id="api-preview-list" class="text-xs text-gray-600 overflow-auto max-h-32"></pre>
+                                        </div>
+                                    </div>
+
+                                    <!-- Endpoint 2 -->
+                                    <div class="bg-white rounded border border-gray-200 overflow-hidden">
+                                        <div class="flex items-center gap-2 px-3 py-2 bg-gray-50 border-b">
+                                            <span class="bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded">GET</span>
+                                            <code class="text-sm text-sourceful-grey">/gridtariff/v0/tariffs/{id}</code>
+                                        </div>
+                                        <div class="p-3">
+                                            <pre id="api-preview-single" class="text-xs text-gray-600 overflow-auto max-h-32"></pre>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-500 mt-3">
+                                    Detta är en förhandsvisning. Det faktiska API:et skapas när du laddar ner och deployar paketet.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview files -->
+                    <div class="mt-4 border-t border-gray-200 pt-4">
                         <button onclick="togglePreview()" class="text-sourceful-green text-sm hover:underline font-medium">
-                            Visa/dölj filförhandsvisning
+                            Visa/dölj genererade filer
                         </button>
                         <div id="file-preview" class="hidden mt-4">
                             <div class="flex gap-2 mb-2 overflow-x-auto">
@@ -263,7 +387,7 @@ Gäller från 2025-01-01"></textarea>
                     </svg>
                     <div>
                         <p class="font-semibold">Sourceful Labs AB</p>
-                        <p class="text-sm text-gray-400">Optimerar energianvändning</p>
+                        <p class="text-sm text-gray-400">The Local Execution Layer</p>
                     </div>
                 </div>
                 <div class="text-center md:text-right text-sm text-gray-400">
@@ -283,25 +407,18 @@ Gäller från 2025-01-01"></textarea>
         let parsedTariffs = null;
         let generatedFiles = null;
 
-        function showTab(tab) {
-            document.querySelectorAll('.input-panel').forEach(p => p.classList.add('hidden'));
-            document.getElementById('input-' + tab).classList.remove('hidden');
-            document.querySelectorAll('[id^="tab-"]').forEach(t => {
-                t.classList.remove('tab-active');
-                t.classList.add('text-gray-500');
-            });
-            document.getElementById('tab-' + tab).classList.add('tab-active');
-            document.getElementById('tab-' + tab).classList.remove('text-gray-500');
-        }
-
         function showStatus(msg) {
             document.getElementById('parse-status').classList.remove('hidden');
             document.getElementById('status-text').textContent = msg;
             document.getElementById('parse-error').classList.add('hidden');
+            document.getElementById('btn-analyze').disabled = true;
+            document.getElementById('btn-analyze').classList.add('opacity-50', 'cursor-not-allowed');
         }
 
         function hideStatus() {
             document.getElementById('parse-status').classList.add('hidden');
+            document.getElementById('btn-analyze').disabled = false;
+            document.getElementById('btn-analyze').classList.remove('opacity-50', 'cursor-not-allowed');
         }
 
         function showError(msg) {
@@ -335,24 +452,35 @@ Gäller från 2025-01-01"></textarea>
 
             tariffs.tariffs.forEach((tariff, idx) => {
                 const card = document.createElement('div');
-                card.className = 'border border-gray-200 rounded-lg p-4 bg-gray-50';
+                card.className = 'border border-gray-200 rounded-lg p-4 bg-gray-50 mb-4';
+
+                // Check if this tariff has power price with description (important info)
+                const hasPowerInfo = tariff.powerPrice?.description || tariff.description?.includes('ffekt');
+
                 card.innerHTML = `
-                    <div class="mb-4">
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Tariffnamn</label>
-                        <input type="text" value="${tariff.name || ''}"
-                               onchange="updateTariff(${idx}, 'name', this.value)"
-                               class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-sourceful-green focus:border-sourceful-green">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Beskrivning</label>
-                        <input type="text" value="${tariff.description || ''}"
-                               onchange="updateTariff(${idx}, 'description', this.value)"
-                               class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-sourceful-green focus:border-sourceful-green">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex-1">
+                            <input type="text" value="${tariff.name || ''}"
+                                   onchange="updateTariff(${idx}, 'name', this.value)"
+                                   class="text-lg font-semibold text-sourceful-grey bg-transparent border-b border-transparent hover:border-gray-300 focus:border-sourceful-green focus:outline-none w-full">
+                            <div class="text-xs text-gray-400 mt-1">${tariff.companyName || ''}</div>
+                        </div>
                     </div>
 
-                    ${renderPriceSection('Fasta avgifter', tariff.fixedPrice, idx, 'fixedPrice')}
-                    ${renderPriceSection('Energiavgifter (kr/kWh)', tariff.energyPrice, idx, 'energyPrice')}
-                    ${renderPriceSection('Effektavgifter (kr/kW)', tariff.powerPrice, idx, 'powerPrice')}
+                    ${tariff.description ? `
+                    <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="text-xs font-medium text-blue-700 mb-1">Målgrupp & Villkor</div>
+                        <textarea onchange="updateTariff(${idx}, 'description', this.value)"
+                                  class="w-full text-sm text-blue-900 bg-transparent border-none resize-none focus:outline-none"
+                                  rows="2">${tariff.description}</textarea>
+                    </div>
+                    ` : ''}
+
+                    <div class="grid gap-4">
+                        ${renderPriceSection('Fasta avgifter', tariff.fixedPrice, idx, 'fixedPrice')}
+                        ${renderPriceSection('Energiavgifter', tariff.energyPrice, idx, 'energyPrice')}
+                        ${renderPriceSection('Effektavgifter', tariff.powerPrice, idx, 'powerPrice')}
+                    </div>
                 `;
                 container.appendChild(card);
             });
@@ -363,35 +491,49 @@ Gäller från 2025-01-01"></textarea>
                 return '';
             }
 
-            let rows = priceElement.components.map((comp, compIdx) => `
-                <tr class="border-b border-gray-100">
-                    <td class="py-2 pr-2">
+            // Check for important description (especially for power prices)
+            const hasDescription = priceElement.description && priceElement.description.trim();
+            const isPowerPrice = priceType === 'powerPrice';
+
+            let rows = priceElement.components.map((comp, compIdx) => {
+                const unit = comp.unit || (priceType === 'fixedPrice' ? 'kr/mån' : '');
+                return `
+                <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                    <div class="flex-1">
                         <input type="text" value="${comp.name || ''}"
                                onchange="updateComponent(${tariffIdx}, '${priceType}', ${compIdx}, 'name', this.value)"
-                               class="w-full border border-gray-200 rounded px-2 py-1 text-sm">
-                    </td>
-                    <td class="py-2 px-2">
+                               class="text-sm bg-transparent border-b border-transparent hover:border-gray-300 focus:border-sourceful-green focus:outline-none">
+                    </div>
+                    <div class="flex items-center gap-2">
                         <input type="number" step="0.01" value="${comp.price?.priceIncVat || 0}"
                                onchange="updateComponent(${tariffIdx}, '${priceType}', ${compIdx}, 'priceIncVat', parseFloat(this.value))"
-                               class="w-20 border border-gray-200 rounded px-2 py-1 text-sm text-right">
-                    </td>
-                    <td class="py-2 pl-2 text-sm text-gray-500">${comp.unit || (priceType === 'fixedPrice' ? 'kr' : '')}</td>
-                </tr>
-            `).join('');
+                               class="w-24 text-right font-medium border border-gray-200 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-sourceful-green">
+                        <span class="text-xs text-gray-500 w-16">${unit}</span>
+                    </div>
+                </div>
+            `}).join('');
+
+            // Special styling for power prices with complex rules
+            const sectionClass = isPowerPrice && hasDescription
+                ? 'p-3 bg-amber-50 border border-amber-200 rounded-lg'
+                : 'p-3 bg-white border border-gray-200 rounded-lg';
+
+            const titleClass = isPowerPrice && hasDescription
+                ? 'text-xs font-semibold text-amber-800 uppercase tracking-wide flex items-center gap-2'
+                : 'text-xs font-semibold text-sourceful-grey uppercase tracking-wide';
 
             return `
-                <div class="mb-3">
-                    <h4 class="text-xs font-semibold text-sourceful-grey mb-2 uppercase tracking-wide">${title}</h4>
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="text-left text-xs text-gray-500 border-b">
-                                <th class="pb-1">Namn</th>
-                                <th class="pb-1">Pris</th>
-                                <th class="pb-1">Enhet</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>
+                <div class="${sectionClass}">
+                    <h4 class="${titleClass}">
+                        ${isPowerPrice && hasDescription ? '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>' : ''}
+                        ${title}
+                    </h4>
+                    ${hasDescription ? `
+                    <div class="mt-2 mb-3 p-2 ${isPowerPrice ? 'bg-amber-100/50' : 'bg-gray-50'} rounded text-xs ${isPowerPrice ? 'text-amber-900' : 'text-gray-600'}">
+                        <strong>Beräkningsregel:</strong> ${priceElement.description}
+                    </div>
+                    ` : ''}
+                    <div class="mt-2">${rows}</div>
                 </div>
             `;
         }
@@ -421,26 +563,87 @@ Gäller från 2025-01-01"></textarea>
                 JSON.stringify(parsedTariffs, null, 2);
         }
 
-        async function parseText() {
-            const text = document.getElementById('tariff-text').value;
-            const companyName = document.getElementById('company-name').value;
+        function toggleApiPreview() {
+            const preview = document.getElementById('api-preview');
+            preview.classList.toggle('hidden');
 
-            if (!text.trim()) {
-                showError('Ange en tariffbeskrivning');
+            if (!preview.classList.contains('hidden') && parsedTariffs) {
+                // Show API preview
+                const listPreview = document.getElementById('api-preview-list');
+                const singlePreview = document.getElementById('api-preview-single');
+
+                // Format list response
+                listPreview.textContent = JSON.stringify({
+                    tariffs: parsedTariffs.tariffs?.map(t => ({
+                        id: t.id || "generated-uuid",
+                        name: t.name,
+                        description: t.description,
+                        companyName: t.companyName
+                    })) || []
+                }, null, 2);
+
+                // Format single tariff response
+                if (parsedTariffs.tariffs?.length > 0) {
+                    const firstTariff = parsedTariffs.tariffs[0];
+                    singlePreview.textContent = JSON.stringify({
+                        id: firstTariff.id || "generated-uuid",
+                        name: firstTariff.name,
+                        description: firstTariff.description,
+                        validPeriod: firstTariff.validPeriod,
+                        companyName: firstTariff.companyName,
+                        fixedPrice: firstTariff.fixedPrice ? "..." : null,
+                        energyPrice: firstTariff.energyPrice ? "..." : null,
+                        powerPrice: firstTariff.powerPrice ? "..." : null
+                    }, null, 2);
+                }
+            }
+        }
+
+        async function analyzeAll() {
+            const url = document.getElementById('tariff-url').value.trim();
+            const fileInput = document.getElementById('tariff-pdf');
+            const text = document.getElementById('tariff-text').value.trim();
+
+            const hasUrl = url.length > 0;
+            const hasPdf = fileInput.files.length > 0;
+            const hasText = text.length > 0;
+
+            if (!hasUrl && !hasPdf && !hasText) {
+                showError('Fyll i minst ett av fälten (URL, PDF eller fritext)');
                 return;
             }
 
-            showStatus('Analyserar med AI...');
+            // Build form data with all available inputs
+            const formData = new FormData();
+            if (hasUrl) formData.append('url', url);
+            if (hasPdf) formData.append('file', fileInput.files[0]);
+            if (hasText) formData.append('text', text);
+
+            // Show status with progress
+            const steps = [];
+            if (hasUrl) steps.push('Hämtar webbsida');
+            if (hasPdf) steps.push('Läser PDF');
+            if (hasText) steps.push('Läser fritext');
+            steps.push('AI analyserar tariffer');
+
+            let currentStep = 0;
+            showStatus(steps[currentStep]);
+
+            // Simulate progress through steps
+            const stepInterval = setInterval(() => {
+                currentStep++;
+                if (currentStep < steps.length) {
+                    document.getElementById('status-text').textContent = steps[currentStep];
+                }
+            }, 2000);
 
             try {
-                const formData = new FormData();
-                formData.append('content', text);
-                if (companyName) formData.append('company_name', companyName);
-
-                const response = await fetch('/api/parse/text', {
+                const response = await fetch('/api/parse/combined', {
                     method: 'POST',
                     body: formData
                 });
+
+                clearInterval(stepInterval);
 
                 if (!response.ok) {
                     const error = await response.json();
@@ -451,73 +654,49 @@ Gäller från 2025-01-01"></textarea>
                 hideStatus();
                 showResult(result);
             } catch (e) {
+                clearInterval(stepInterval);
                 showError(e.message);
             }
         }
 
-        async function parsePDF() {
-            const fileInput = document.getElementById('tariff-pdf');
-            const companyName = document.getElementById('company-name').value;
-
-            if (!fileInput.files.length) {
-                showError('Välj en PDF-fil');
+        async function downloadJson() {
+            if (!parsedTariffs) {
+                showError('Analysera tariffer först');
                 return;
             }
 
-            showStatus('Laddar upp och analyserar PDF...');
+            const companyName = parsedTariffs.tariffs?.[0]?.companyName || 'Mitt Elnätsbolag';
+            const companyOrgNo = parsedTariffs.tariffs?.[0]?.companyOrgNo || '556000-0000';
+
+            showStatus('Genererar JSON...');
 
             try {
-                const formData = new FormData();
-                formData.append('file', fileInput.files[0]);
-                if (companyName) formData.append('company_name', companyName);
-
-                const response = await fetch('/api/parse/pdf', {
+                const response = await fetch('/api/generate/json', {
                     method: 'POST',
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tariffs_json: JSON.stringify(parsedTariffs),
+                        company_name: companyName,
+                        company_org_no: companyOrgNo
+                    })
                 });
 
                 if (!response.ok) {
                     const error = await response.json();
-                    throw new Error(error.detail || 'Kunde inte analysera PDF');
+                    throw new Error(error.detail || 'Kunde inte generera JSON');
                 }
 
-                const result = await response.json();
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = companyName.toLowerCase().replace(/\s+/g, '-') + '-tariffer.json';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+
                 hideStatus();
-                showResult(result);
-            } catch (e) {
-                showError(e.message);
-            }
-        }
-
-        async function parseURL() {
-            const url = document.getElementById('tariff-url').value;
-            const companyName = document.getElementById('company-name').value;
-
-            if (!url.trim()) {
-                showError('Ange en URL');
-                return;
-            }
-
-            showStatus('Hämtar och analyserar URL...');
-
-            try {
-                const formData = new FormData();
-                formData.append('url', url);
-                if (companyName) formData.append('company_name', companyName);
-
-                const response = await fetch('/api/parse/url', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.detail || 'Kunde inte analysera URL');
-                }
-
-                const result = await response.json();
-                hideStatus();
-                showResult(result);
             } catch (e) {
                 showError(e.message);
             }
@@ -529,10 +708,11 @@ Gäller från 2025-01-01"></textarea>
                 return;
             }
 
-            const companyName = document.getElementById('company-name').value || 'Mitt Elnätsbolag';
-            const companyOrgNo = document.getElementById('company-orgno').value || '556000-0000';
+            // Get company info from parsed tariffs
+            const companyName = parsedTariffs.tariffs?.[0]?.companyName || 'Mitt Elnätsbolag';
+            const companyOrgNo = parsedTariffs.tariffs?.[0]?.companyOrgNo || '556000-0000';
 
-            showStatus('Genererar paket...');
+            showStatus('Genererar Docker-paket...');
 
             try {
                 const response = await fetch('/api/generate/package', {
@@ -572,8 +752,9 @@ Gäller från 2025-01-01"></textarea>
                 return;
             }
 
-            const companyName = document.getElementById('company-name').value || 'Mitt Elnätsbolag';
-            const companyOrgNo = document.getElementById('company-orgno').value || '556000-0000';
+            // Get company info from parsed tariffs
+            const companyName = parsedTariffs.tariffs?.[0]?.companyName || 'Mitt Elnätsbolag';
+            const companyOrgNo = parsedTariffs.tariffs?.[0]?.companyOrgNo || '556000-0000';
 
             showStatus('Genererar Excel...');
 
@@ -624,8 +805,9 @@ Gäller från 2025-01-01"></textarea>
         async function loadPreview() {
             if (!parsedTariffs) return;
 
-            const companyName = document.getElementById('company-name').value || 'Mitt Elnätsbolag';
-            const companyOrgNo = document.getElementById('company-orgno').value || '556000-0000';
+            // Get company info from parsed tariffs
+            const companyName = parsedTariffs.tariffs?.[0]?.companyName || 'Mitt Elnätsbolag';
+            const companyOrgNo = parsedTariffs.tariffs?.[0]?.companyOrgNo || '556000-0000';
 
             try {
                 const response = await fetch('/api/generate/preview', {
@@ -661,6 +843,57 @@ Gäller från 2025-01-01"></textarea>
             event.target.classList.remove('bg-gray-100');
             event.target.classList.add('bg-sourceful-green/20', 'text-sourceful-green');
         }
+
+        // Load template from sessionStorage if coming from explorer
+        function loadTemplateIfExists() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('template') === 'true') {
+                const templateData = sessionStorage.getItem('tariffTemplate');
+
+                if (templateData) {
+                    try {
+                        const tariffs = JSON.parse(templateData);
+
+                        // Show the result directly - company info is in the tariff data
+                        showResult(tariffs);
+
+                        // Clean up sessionStorage
+                        sessionStorage.removeItem('tariffTemplate');
+                        sessionStorage.removeItem('templateCompanyName');
+                        sessionStorage.removeItem('templateCompanyOrgNo');
+
+                        // Clean up URL
+                        window.history.replaceState({}, '', '/');
+
+                        // Show a notification
+                        showTemplateNotification();
+                    } catch (e) {
+                        console.error('Kunde inte ladda mall:', e);
+                    }
+                }
+            }
+        }
+
+        function showTemplateNotification() {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 bg-sourceful-green text-white px-4 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2';
+            notification.innerHTML = `
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Mall laddad! Anpassa värdena och ladda ner när du är klar.</span>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+
+        // Run on page load
+        document.addEventListener('DOMContentLoaded', loadTemplateIfExists);
     </script>
 </body>
 </html>

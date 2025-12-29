@@ -23,7 +23,7 @@ from slowapi.util import get_remote_address
 
 from .api import explore, generate, parse
 
-# Rate limiter - 10 requests per minute for AI endpoints
+# Rate limiter - 10 requests per hour for AI endpoints
 limiter = Limiter(key_func=get_remote_address)
 
 # Create FastAPI app

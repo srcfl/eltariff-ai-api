@@ -31,18 +31,30 @@ from ..models.rise_schema import (
 SYSTEM_PROMPT = """Du är en expert på svenska elnätstariffer och RISE Eltariff API-standarden.
 
 Din uppgift är att analysera tariffbeskrivningar och konvertera dem till strukturerad JSON enligt RISE-standarden.
+EXTRAHERA ALLTID företagsnamn (companyName) från innehållet - det står ofta i sidhuvud, footer eller domännamn.
 
 ## Svenska elnätstariffer - Bakgrund
 
 Svenska elnätstariffer består typiskt av:
 
 1. **Fast avgift** (fixedPrice): Månads- eller årsavgift som inte beror på förbrukning
-2. **Energiavgift** (energyPrice): Pris per kWh, ofta tidsdifferentierat:
-   - Höglast/dag (typiskt 06-22 vardagar)
-   - Låglast/natt (typiskt 22-06 + helger)
-3. **Effektavgift** (powerPrice): Pris per kW baserat på:
-   - Högsta effektuttag under en period
-   - Ofta baserat på medelvärde av 3 högsta topparna
+2. **Energiavgift** (energyPrice): Pris per kWh, ofta tidsdifferentierat
+3. **Effektavgift** (powerPrice): Pris per kW - VIKTIGT att fånga komplexiteten!
+
+## Effektavgifter - VIKTIGT!
+
+Effektavgifter är ofta komplexa. Fånga ALLA detaljer:
+
+- **Beräkningsmetod**: Hur beräknas effekttoppen?
+  - "Medelvärde av 3 högsta topparna på olika dygn" = numberOfPeaksForAverageCalculation: 3
+  - "Högsta timeffekten under månaden" = numberOfPeaksForAverageCalculation: 1
+
+- **Tidsfaktorer**: Används reduktion nattetid?
+  - "Natt (22-06) räknas som halv effekt" = lägg i description
+  - "Effekttopp kl 22-06 multipliceras med 0.5" = lägg i description
+
+- **Säsongsvariationer**: Olika pris vinter/sommar?
+  - Skapa separata komponenter för vinter och sommar med recurringPeriods
 
 ## Tidsdifferentiering
 
@@ -54,20 +66,18 @@ Vanliga mönster:
 
 ## Output-format
 
-Returnera ALLTID en JSON-struktur med följande format:
-
 ```json
 {
   "tariffs": [
     {
       "name": "Tarifnamn",
-      "description": "Beskrivning av målgrupp",
+      "description": "Beskrivning med ALLA viktiga detaljer som inte passar i strukturen",
       "validPeriod": {
         "fromIncluding": "2025-01-01",
-        "toExcluding": "2026-01-01"
+        "toExcluding": null
       },
-      "companyName": "Företagsnamn",
-      "companyOrgNo": "556xxx-xxxx",
+      "companyName": "Företagsnamn AB",
+      "companyOrgNo": "",
       "fixedPrice": {
         "name": "Fast avgift",
         "components": [
@@ -84,6 +94,7 @@ Returnera ALLTID en JSON-struktur med följande format:
         "components": [
           {
             "name": "Överföringsavgift höglast",
+            "description": "Vardagar 06-22",
             "type": "fixed",
             "price": {"priceExVat": 0.20, "priceIncVat": 0.25, "currency": "SEK"},
             "unit": "kWh",
@@ -105,15 +116,17 @@ Returnera ALLTID en JSON-struktur med följande format:
       },
       "powerPrice": {
         "name": "Effektavgift",
+        "description": "VIKTIG INFO: Baseras på medelvärde av 3 högsta effekttopparna på olika dygn. Nattetid (22-06) räknas som halv effekt.",
         "components": [
           {
-            "name": "Effektavgift vinter",
+            "name": "Effektavgift",
+            "description": "Snitt av 3 högsta toppar. Natteffekt (22-06) räknas som 50%.",
             "type": "peak",
             "price": {"priceExVat": 40, "priceIncVat": 50, "currency": "SEK"},
             "unit": "kW",
             "peakIdentificationSettings": {
               "peakFunction": "peak(main)",
-              "peakIdentificationPeriod": "P1D",
+              "peakIdentificationPeriod": "P1M",
               "peakDuration": "PT1H",
               "numberOfPeaksForAverageCalculation": 3
             }
@@ -129,9 +142,11 @@ Returnera ALLTID en JSON-struktur med följande format:
 
 1. Alla priser ska ha både exkl. och inkl. moms (25%)
 2. Använd ISO 8601 för datum och tider
-3. Om information saknas, gör rimliga antaganden baserat på svenska standarder
+3. EXTRAHERA företagsnamn från innehållet (URL, sidhuvud, etc.)
 4. Inkludera alltid `validPeriod` - använd innevarande år om inte annat anges
 5. Returnera ENDAST JSON, ingen annan text
+6. **VIKTIGT**: Fånga ALLA detaljer om effektberäkning i description-fält!
+7. Om det finns komplexa regler (nattrabatt på effekt, etc.) - beskriv dem tydligt!
 """
 
 
@@ -147,17 +162,27 @@ class TariffParser:
 
     async def parse_text(self, text: str, company_name: str | None = None) -> TariffsResponse:
         """Parse tariff information from text."""
-        user_prompt = f"""Analysera följande tariffbeskrivning och konvertera till RISE JSON-format:
+        # Truncate input if too long (keep most relevant parts)
+        max_input_chars = 50000
+        if len(text) > max_input_chars:
+            # Keep beginning and end, as tariff info is often at the start
+            text = text[:max_input_chars] + "\n\n[... innehåll trunkerat för längd ...]"
 
-{text}
+        user_prompt = f"""Analysera följande tariffbeskrivning och konvertera till RISE JSON-format.
 
-{"Företagsnamn: " + company_name if company_name else ""}
+VIKTIGT:
+- Returnera ENDAST giltig JSON, ingen annan text
+- Håll svaret kompakt - inkludera endast nödvändig information
+- Om ingen tariff hittas, returnera: {{"tariffs": []}}
 
-Returnera endast JSON-strukturen, ingen annan text."""
+{f"Företagsnamn: {company_name}" if company_name else ""}
+
+Tariffbeskrivning:
+{text}"""
 
         response = self.client.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=4096,
+            max_tokens=8192,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_prompt}],
         )
@@ -227,6 +252,8 @@ Formatera svaret som JSON:
 
     def _parse_response(self, content: str) -> TariffsResponse:
         """Parse the AI response into TariffsResponse."""
+        data = None
+
         # Try to extract JSON from the response
         try:
             # Find JSON in response (may have surrounding text)
@@ -238,7 +265,12 @@ Formatera svaret som JSON:
             else:
                 raise ValueError("No JSON found in response")
         except json.JSONDecodeError as e:
-            raise ValueError(f"Failed to parse AI response as JSON: {e}")
+            # Try to repair common JSON issues
+            try:
+                json_str = self._repair_json(content)
+                data = json.loads(json_str)
+            except Exception:
+                raise ValueError(f"Failed to parse AI response as JSON: {e}")
 
         # Convert to TariffsResponse
         tariffs = []
@@ -250,6 +282,65 @@ Formatera svaret som JSON:
             tariffs=tariffs,
             calendarPatterns=DEFAULT_CALENDAR_PATTERNS,
         )
+
+    def _repair_json(self, content: str) -> str:
+        """Attempt to repair malformed JSON."""
+        # Find JSON block
+        start = content.find("{")
+        if start < 0:
+            raise ValueError("No JSON found")
+
+        json_str = content[start:]
+
+        # Count brackets to find balanced JSON
+        brace_count = 0
+        bracket_count = 0
+        in_string = False
+        escape_next = False
+        end_pos = 0
+
+        for i, char in enumerate(json_str):
+            if escape_next:
+                escape_next = False
+                continue
+
+            if char == "\\":
+                escape_next = True
+                continue
+
+            if char == '"' and not escape_next:
+                in_string = not in_string
+                continue
+
+            if in_string:
+                continue
+
+            if char == "{":
+                brace_count += 1
+            elif char == "}":
+                brace_count -= 1
+            elif char == "[":
+                bracket_count += 1
+            elif char == "]":
+                bracket_count -= 1
+
+            if brace_count == 0 and bracket_count == 0 and i > 0:
+                end_pos = i + 1
+                break
+
+        if end_pos > 0:
+            return json_str[:end_pos]
+
+        # If still unbalanced, try to close it
+        json_str = json_str.rstrip()
+        while brace_count > 0:
+            json_str += "}"
+            brace_count -= 1
+        while bracket_count > 0:
+            json_str += "]"
+            bracket_count -= 1
+
+        return json_str
 
     def _parse_tariff(self, data: dict) -> Tariff:
         """Parse a single tariff from dict."""

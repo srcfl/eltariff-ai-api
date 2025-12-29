@@ -30,12 +30,22 @@ class ExploreResponse(BaseModel):
 
 
 # Known Swedish RISE APIs
+# Note: We only list publicly accessible APIs. Some utilities have RISE APIs that require authentication.
 KNOWN_APIS = {
     "goteborg-energi": {
         "name": "Göteborg Energi Nät AB",
         "url": "https://api.goteborgenergi.cloud/gridtariff/v0",
-        "description": "Göteborg Energis elnätstariff-API",
+        "description": "Göteborg med omnejd. Har tidsdifferentierade tariffer (höglast/låglast, vinter/sommar).",
     },
+    "tekniska-verken": {
+        "name": "Tekniska verken Linköping Nät AB",
+        "url": "https://api.tekniskaverken.net/subscription/public/v0",
+        "description": "Linköping med omnejd. 171 tariffer för olika kundtyper.",
+    },
+    # More APIs will be added as they become publicly available
+    # Known implementations (not yet public):
+    # - Ellevio
+    # - Vattenfall
 }
 
 
@@ -96,4 +106,11 @@ async def explain_tariffs(request: ExploreRequest) -> ExploreResponse:
 async def explore_goteborg_energi() -> ExploreResponse:
     """Quick access to explore Göteborg Energi's API (without AI explanations for speed)."""
     request = ExploreRequest(api_url="https://api.goteborgenergi.cloud/gridtariff/v0")
+    return await fetch_api(request)
+
+
+@router.get("/tekniska-verken")
+async def explore_tekniska_verken() -> ExploreResponse:
+    """Quick access to explore Tekniska verken's API (without AI explanations for speed)."""
+    request = ExploreRequest(api_url="https://api.tekniskaverken.net/subscription/public/v0")
     return await fetch_api(request)
