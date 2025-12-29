@@ -878,21 +878,17 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
             try {
                 termLog('Skickar till server...', 'info');
 
-                // Two-step AI process progress messages
+                // AI analysis progress messages
                 const progressMessages = [
                     { delay: 1500, msg: 'Hämtar webbsida...', type: 'info' },
                     { delay: 3000, msg: 'Extraherar text från innehåll...', type: 'info' },
                     { delay: 5000, msg: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', type: 'info' },
-                    { delay: 5500, msg: 'STEG 1: Förbehandlar data (Sonnet)', type: 'ai' },
-                    { delay: 6500, msg: '  → Identifierar företag och tariffer...', type: 'ai' },
-                    { delay: 8000, msg: '  → Extraherar priser och avgifter...', type: 'ai' },
-                    { delay: 10000, msg: '  → Analyserar tidsregler...', type: 'ai' },
-                    { delay: 12000, msg: '  ✓ Steg 1 klar', type: 'success' },
-                    { delay: 13000, msg: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', type: 'info' },
-                    { delay: 13500, msg: 'STEG 2: Genererar RISE JSON (Opus)', type: 'ai' },
+                    { delay: 5500, msg: 'AI-ANALYS: Opus 4.5', type: 'ai' },
+                    { delay: 7000, msg: '  → Identifierar företag och tariffer...', type: 'ai' },
+                    { delay: 10000, msg: '  → Extraherar priser och avgifter...', type: 'ai' },
                     { delay: 15000, msg: '  → Skapar tariffer för varje säkring...', type: 'ai' },
-                    { delay: 18000, msg: '  → Validerar RISE-format...', type: 'ai' },
-                    { delay: 22000, msg: '  → Slutför JSON-struktur...', type: 'ai' },
+                    { delay: 20000, msg: '  → Validerar RISE-format...', type: 'ai' },
+                    { delay: 30000, msg: '  → Slutför JSON-struktur...', type: 'ai' },
                 ];
 
                 const timeouts = progressMessages.map(p =>
