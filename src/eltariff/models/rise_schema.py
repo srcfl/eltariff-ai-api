@@ -21,6 +21,7 @@ class Direction(str, Enum):
 class ComponentType(str, Enum):
     """Type of price component."""
     FIXED = "fixed"
+    VARIABLE = "variable"
     PEAK = "peak"
 
 

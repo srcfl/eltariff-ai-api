@@ -33,6 +33,20 @@ SYSTEM_PROMPT = """Du är en expert på svenska elnätstariffer och RISE Eltarif
 Din uppgift är att analysera tariffbeskrivningar och konvertera dem till strukturerad JSON enligt RISE-standarden.
 EXTRAHERA ALLTID företagsnamn (companyName) från innehållet - det står ofta i sidhuvud, footer eller domännamn.
 
+## VIKTIGT: Skapa SEPARATA tariffer!
+
+KRITISKT: Om det finns olika priser för olika säkringsstorlekar (16A, 20A, 25A, 35A, etc.) ska du skapa EN SEPARAT TARIFF för varje säkringsstorlek!
+
+Exempel: Om sidan visar en tabell med:
+- 16A: 1 984 kr/år
+- 20A: 5 673 kr/år
+- 25A: 7 149 kr/år
+
+Då skapar du TRE separata tariffer:
+1. "Elnät 16A" med fixedPrice 1984 kr/år
+2. "Elnät 20A" med fixedPrice 5673 kr/år
+3. "Elnät 25A" med fixedPrice 7149 kr/år
+
 ## Svenska elnätstariffer - Bakgrund
 
 Svenska elnätstariffer består typiskt av:
@@ -147,6 +161,9 @@ Vanliga mönster:
 5. Returnera ENDAST JSON, ingen annan text
 6. **VIKTIGT**: Fånga ALLA detaljer om effektberäkning i description-fält!
 7. Om det finns komplexa regler (nattrabatt på effekt, etc.) - beskriv dem tydligt!
+8. **ÅRSAVGIFTER**: Om avgiften anges per år (kr/år), använd "pricedPeriod": "P1Y", INTE "P1M"!
+9. **SKAPA MÅNGA TARIFFER**: Varje säkringsstorlek (16A, 20A, 25A...) ska bli en EGEN tariff!
+10. **SPOTPRIS**: Om överföringsavgift är "spotprisbaserad" eller "variabel", skriv det i description och använd ett typiskt medelvärde som pris.
 """
 
 

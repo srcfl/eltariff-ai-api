@@ -49,6 +49,27 @@
         .animate-progress {
             animation: progress 2s ease-in-out infinite;
         }
+        /* Terminal styling */
+        .terminal {
+            background: #1a1a2e;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+        }
+        .terminal-line {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .cursor-blink::after {
+            content: '▊';
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen font-sans">
@@ -189,28 +210,19 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                     Analysera med AI
                 </button>
 
-                <!-- AI Thinking Status -->
-                <div id="parse-status" class="mt-6 hidden">
-                    <div class="bg-gradient-to-r from-sourceful-green/10 to-sourceful-blue/10 rounded-lg p-4 border border-sourceful-green/20">
-                        <div class="flex items-center gap-3 mb-3">
-                            <div class="relative">
-                                <div class="w-10 h-10 rounded-full bg-sourceful-green/20 flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-sourceful-green animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                                    </svg>
-                                </div>
-                                <span class="absolute -bottom-1 -right-1 flex h-3 w-3">
-                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sourceful-teal opacity-75"></span>
-                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-sourceful-green"></span>
-                                </span>
+                <!-- Terminal Log -->
+                <div id="terminal-log" class="mt-6 hidden">
+                    <div class="terminal rounded-lg overflow-hidden border border-gray-700">
+                        <div class="flex items-center gap-2 px-3 py-2 bg-gray-800 border-b border-gray-700">
+                            <div class="flex gap-1.5">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
                             </div>
-                            <div>
-                                <div class="font-semibold text-sourceful-grey">AI analyserar...</div>
-                                <div class="text-sm text-gray-500" id="status-text">Läser in data</div>
-                            </div>
+                            <span class="text-gray-400 text-xs ml-2">eltariff-ai — parsing</span>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                            <div class="bg-sourceful-green h-1.5 rounded-full animate-progress"></div>
+                        <div id="terminal-content" class="p-4 h-48 overflow-y-auto text-gray-300">
+                            <!-- Terminal lines added by JS -->
                         </div>
                     </div>
                 </div>
@@ -242,6 +254,28 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                                 </p>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- AI Improvement Prompt -->
+                    <div class="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
+                        <h4 class="font-medium text-purple-900 mb-2 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                            </svg>
+                            Förbättra med AI
+                        </h4>
+                        <div class="flex gap-2">
+                            <input type="text" id="ai-improvement"
+                                   placeholder="T.ex: Lägg till effektavgift på 45 kr/kW, ändra namn till..."
+                                   class="flex-1 border border-purple-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-400">
+                            <button onclick="improveWithAI()" id="btn-improve"
+                                    class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition text-sm font-medium whitespace-nowrap">
+                                Uppdatera
+                            </button>
+                        </div>
+                        <p class="text-xs text-purple-600 mt-2">
+                            Beskriv vad som ska ändras så fixar AI:n det åt dig.
+                        </p>
                     </div>
 
                     <!-- Tariff Editor -->
@@ -436,6 +470,32 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
         </div>
     </section>
 
+    <!-- Email Modal -->
+    <div id="email-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+            <div class="gradient-bg px-6 py-4">
+                <h3 class="text-xl font-bold text-white">Kom igång med Eltariff AI</h3>
+                <p class="text-gray-300 text-sm mt-1">Gratis att använda — vi behöver bara din e-post</p>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-600 mb-4">
+                    Ange din e-postadress för att börja analysera tariffer med AI.
+                    Vi skickar inga spam — detta hjälper oss bara förstå vilka som använder verktyget.
+                </p>
+                <input type="email" id="user-email"
+                       placeholder="din@epost.se"
+                       class="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:ring-2 focus:ring-sourceful-green focus:border-sourceful-green mb-4">
+                <button onclick="submitEmail()"
+                        class="w-full bg-sourceful-green text-white py-3 px-4 rounded-lg hover:bg-sourceful-blue transition font-semibold">
+                    Fortsätt
+                </button>
+                <p class="text-xs text-gray-400 mt-3 text-center">
+                    Genom att fortsätta godkänner du att vi sparar din e-postadress.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="gradient-bg text-white">
         <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -466,23 +526,118 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
     <script>
         let parsedTariffs = null;
         let generatedFiles = null;
+        const FORMSPARK_URL = 'https://submit-form.com/mw3ANw208';
 
-        function showStatus(msg) {
-            document.getElementById('parse-status').classList.remove('hidden');
-            document.getElementById('status-text').textContent = msg;
+        // ========== EMAIL & TRACKING ==========
+        function getUserEmail() {
+            return localStorage.getItem('eltariff_email');
+        }
+
+        function setUserEmail(email) {
+            localStorage.setItem('eltariff_email', email);
+        }
+
+        function showEmailModal() {
+            document.getElementById('email-modal').classList.remove('hidden');
+            document.getElementById('user-email').focus();
+        }
+
+        function hideEmailModal() {
+            document.getElementById('email-modal').classList.add('hidden');
+        }
+
+        async function submitEmail() {
+            const email = document.getElementById('user-email').value.trim();
+            if (!email || !email.includes('@')) {
+                document.getElementById('user-email').classList.add('border-red-500');
+                return;
+            }
+
+            setUserEmail(email);
+            hideEmailModal();
+
+            // Track registration in Formspark
+            await trackEvent('registration', { email });
+
+            // Continue with the original action
+            if (window.pendingAnalysis) {
+                window.pendingAnalysis();
+                window.pendingAnalysis = null;
+            }
+        }
+
+        async function trackEvent(action, data = {}) {
+            const email = getUserEmail();
+            try {
+                await fetch(FORMSPARK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        action: action,
+                        timestamp: new Date().toISOString(),
+                        ...data
+                    })
+                });
+            } catch (e) {
+                console.log('Tracking failed:', e);
+            }
+        }
+
+        // ========== TERMINAL LOG ==========
+        function showTerminal() {
+            const terminal = document.getElementById('terminal-log');
+            terminal.classList.remove('hidden');
+            document.getElementById('terminal-content').innerHTML = '';
             document.getElementById('parse-error').classList.add('hidden');
             document.getElementById('btn-analyze').disabled = true;
             document.getElementById('btn-analyze').classList.add('opacity-50', 'cursor-not-allowed');
         }
 
-        function hideStatus() {
-            document.getElementById('parse-status').classList.add('hidden');
+        function hideTerminal() {
             document.getElementById('btn-analyze').disabled = false;
             document.getElementById('btn-analyze').classList.remove('opacity-50', 'cursor-not-allowed');
         }
 
+        function termLog(message, type = 'info') {
+            const content = document.getElementById('terminal-content');
+            const line = document.createElement('div');
+            line.className = 'terminal-line mb-1';
+
+            const timestamp = new Date().toLocaleTimeString('sv-SE');
+            const colors = {
+                'info': 'text-gray-400',
+                'success': 'text-green-400',
+                'error': 'text-red-400',
+                'warning': 'text-yellow-400',
+                'ai': 'text-purple-400'
+            };
+
+            const icons = {
+                'info': '→',
+                'success': '✓',
+                'error': '✗',
+                'warning': '⚠',
+                'ai': '🤖'
+            };
+
+            line.innerHTML = `<span class="text-gray-500">[${timestamp}]</span> <span class="${colors[type]}">${icons[type]}</span> ${message}`;
+            content.appendChild(line);
+            content.scrollTop = content.scrollHeight;
+        }
+
+        function termLogTyping(message) {
+            const content = document.getElementById('terminal-content');
+            const line = document.createElement('div');
+            line.className = 'terminal-line mb-1 cursor-blink';
+            line.innerHTML = `<span class="text-purple-400">🤖</span> <span class="text-purple-300">${message}</span>`;
+            content.appendChild(line);
+            content.scrollTop = content.scrollHeight;
+            return line;
+        }
+
         function showError(msg) {
-            hideStatus();
+            hideTerminal();
             const el = document.getElementById('parse-error');
             el.textContent = msg;
             el.classList.remove('hidden');
@@ -660,6 +815,13 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
         }
 
         async function analyzeAll() {
+            // Check for email first
+            if (!getUserEmail()) {
+                window.pendingAnalysis = analyzeAll;
+                showEmailModal();
+                return;
+            }
+
             const url = document.getElementById('tariff-url').value.trim();
             const fileInput = document.getElementById('tariff-pdf');
             const text = document.getElementById('tariff-text').value.trim();
@@ -673,49 +835,145 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                 return;
             }
 
+            // Show terminal
+            showTerminal();
+            termLog('Startar analys...', 'info');
+
             // Build form data with all available inputs
             const formData = new FormData();
-            if (hasUrl) formData.append('url', url);
-            if (hasPdf) formData.append('file', fileInput.files[0]);
-            if (hasText) formData.append('text', text);
 
-            // Show status with progress
-            const steps = [];
-            if (hasUrl) steps.push('Hämtar webbsida');
-            if (hasPdf) steps.push('Läser PDF');
-            if (hasText) steps.push('Läser fritext');
-            steps.push('AI analyserar tariffer');
+            if (hasUrl) {
+                termLog(`Förbereder URL: ${url}`, 'info');
+                formData.append('url', url);
+            }
+            if (hasPdf) {
+                const fileName = fileInput.files[0].name;
+                const fileSize = (fileInput.files[0].size / 1024).toFixed(1);
+                termLog(`Förbereder PDF: ${fileName} (${fileSize} KB)`, 'info');
+                formData.append('file', fileInput.files[0]);
+            }
+            if (hasText) {
+                termLog(`Förbereder fritext: ${text.length} tecken`, 'info');
+                formData.append('text', text);
+            }
 
-            let currentStep = 0;
-            showStatus(steps[currentStep]);
-
-            // Simulate progress through steps
-            const stepInterval = setInterval(() => {
-                currentStep++;
-                if (currentStep < steps.length) {
-                    document.getElementById('status-text').textContent = steps[currentStep];
-                }
-            }, 2000);
+            // Track the analysis
+            await trackEvent('analysis_started', {
+                hasUrl,
+                hasPdf,
+                hasText,
+                url: hasUrl ? url : null
+            });
 
             try {
+                termLog('Skickar till server...', 'info');
+
+                // Simulate progress messages
+                const progressMessages = [
+                    { delay: 1500, msg: 'Hämtar webbsida...', type: 'info' },
+                    { delay: 3000, msg: 'Extraherar text från innehåll...', type: 'info' },
+                    { delay: 5000, msg: 'Skickar till AI för analys...', type: 'ai' },
+                    { delay: 8000, msg: 'AI tolkar tariffstruktur...', type: 'ai' },
+                    { delay: 12000, msg: 'AI identifierar priskomponenter...', type: 'ai' },
+                ];
+
+                const timeouts = progressMessages.map(p =>
+                    setTimeout(() => termLog(p.msg, p.type), p.delay)
+                );
+
                 const response = await fetch('/api/parse/combined', {
                     method: 'POST',
                     body: formData
                 });
 
-                clearInterval(stepInterval);
+                // Clear pending timeouts
+                timeouts.forEach(t => clearTimeout(t));
 
                 if (!response.ok) {
                     const error = await response.json();
+                    termLog(`Fel: ${error.detail || 'Okänt fel'}`, 'error');
                     throw new Error(error.detail || 'Kunde inte analysera');
                 }
 
                 const result = await response.json();
-                hideStatus();
-                showResult(result);
+                const tariffCount = result.tariffs?.length || 0;
+
+                termLog(`Analys klar!`, 'success');
+                termLog(`Hittade ${tariffCount} tariff(er)`, 'success');
+
+                // Track success
+                await trackEvent('analysis_completed', { tariffCount });
+
+                setTimeout(() => {
+                    hideTerminal();
+                    showResult(result);
+                }, 1000);
+
             } catch (e) {
-                clearInterval(stepInterval);
-                showError(e.message);
+                termLog(`Fel: ${e.message}`, 'error');
+                await trackEvent('analysis_failed', { error: e.message });
+
+                setTimeout(() => {
+                    showError(e.message);
+                }, 1500);
+            }
+        }
+
+        async function improveWithAI() {
+            const instruction = document.getElementById('ai-improvement').value.trim();
+            if (!instruction) {
+                document.getElementById('ai-improvement').classList.add('border-red-500');
+                setTimeout(() => document.getElementById('ai-improvement').classList.remove('border-red-500'), 2000);
+                return;
+            }
+
+            if (!parsedTariffs) {
+                showError('Ingen tariffdata att förbättra');
+                return;
+            }
+
+            showTerminal();
+            termLog('Startar AI-förbättring...', 'ai');
+            termLog(`Instruktion: "${instruction}"`, 'info');
+
+            try {
+                const formData = new FormData();
+                formData.append('text', `
+BEFINTLIG TARIFFDATA (JSON):
+${JSON.stringify(parsedTariffs, null, 2)}
+
+ANVÄNDARENS INSTRUKTION:
+${instruction}
+
+Uppdatera tariffdata enligt instruktionen ovan. Behåll all befintlig data som inte explicit ska ändras.
+                `);
+
+                termLog('Skickar till AI...', 'ai');
+
+                const response = await fetch('/api/parse/text', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Kunde inte förbättra');
+                }
+
+                const result = await response.json();
+                termLog('Förbättring klar!', 'success');
+
+                await trackEvent('improvement_made', { instruction });
+
+                setTimeout(() => {
+                    hideTerminal();
+                    showResult(result);
+                    document.getElementById('ai-improvement').value = '';
+                }, 1000);
+
+            } catch (e) {
+                termLog(`Fel: ${e.message}`, 'error');
+                setTimeout(() => showError(e.message), 1500);
             }
         }
 
@@ -728,7 +986,9 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
             const companyName = parsedTariffs.tariffs?.[0]?.companyName || 'Mitt Elnätsbolag';
             const companyOrgNo = parsedTariffs.tariffs?.[0]?.companyOrgNo || '556000-0000';
 
-            showStatus('Genererar JSON...');
+            showTerminal();
+            termLog('Genererar JSON...', 'info');
+            await trackEvent('download_json', { companyName });
 
             try {
                 const response = await fetch('/api/generate/json', {
@@ -756,9 +1016,11 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                 window.URL.revokeObjectURL(url);
                 a.remove();
 
-                hideStatus();
+                termLog('JSON-fil nedladdad!', 'success');
+                setTimeout(() => hideTerminal(), 1000);
             } catch (e) {
-                showError(e.message);
+                termLog(`Fel: ${e.message}`, 'error');
+                setTimeout(() => showError(e.message), 1500);
             }
         }
 
@@ -768,11 +1030,12 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                 return;
             }
 
-            // Get company info from parsed tariffs
             const companyName = parsedTariffs.tariffs?.[0]?.companyName || 'Mitt Elnätsbolag';
             const companyOrgNo = parsedTariffs.tariffs?.[0]?.companyOrgNo || '556000-0000';
 
-            showStatus('Genererar Docker-paket...');
+            showTerminal();
+            termLog('Genererar Docker-paket...', 'info');
+            await trackEvent('download_package', { companyName });
 
             try {
                 const response = await fetch('/api/generate/package', {
@@ -800,9 +1063,11 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                 window.URL.revokeObjectURL(url);
                 a.remove();
 
-                hideStatus();
+                termLog('Docker-paket nedladdat!', 'success');
+                setTimeout(() => hideTerminal(), 1000);
             } catch (e) {
-                showError(e.message);
+                termLog(`Fel: ${e.message}`, 'error');
+                setTimeout(() => showError(e.message), 1500);
             }
         }
 
@@ -812,11 +1077,12 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                 return;
             }
 
-            // Get company info from parsed tariffs
             const companyName = parsedTariffs.tariffs?.[0]?.companyName || 'Mitt Elnätsbolag';
             const companyOrgNo = parsedTariffs.tariffs?.[0]?.companyOrgNo || '556000-0000';
 
-            showStatus('Genererar Excel...');
+            showTerminal();
+            termLog('Genererar Excel...', 'info');
+            await trackEvent('download_excel', { companyName });
 
             try {
                 const response = await fetch('/api/generate/excel', {
@@ -844,9 +1110,11 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                 window.URL.revokeObjectURL(url);
                 a.remove();
 
-                hideStatus();
+                termLog('Excel-fil nedladdad!', 'success');
+                setTimeout(() => hideTerminal(), 1000);
             } catch (e) {
-                showError(e.message);
+                termLog(`Fel: ${e.message}`, 'error');
+                setTimeout(() => showError(e.message), 1500);
             }
         }
 
@@ -951,6 +1219,20 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                 setTimeout(() => notification.remove(), 300);
             }, 4000);
         }
+
+        // Handle Enter key in email modal
+        document.getElementById('user-email').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitEmail();
+            }
+        });
+
+        // Handle Enter key in AI improvement
+        document.getElementById('ai-improvement').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                improveWithAI();
+            }
+        });
 
         // Run on page load
         document.addEventListener('DOMContentLoaded', loadTemplateIfExists);
