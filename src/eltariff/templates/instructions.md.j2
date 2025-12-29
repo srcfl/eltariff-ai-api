@@ -1,0 +1,75 @@
+# {{ company_name }} - Elnätstariff API
+
+## Vad är detta?
+
+Detta är ett komplett API för att publicera {{ company_name }}s elnätstariffer enligt RISE-standarden.
+APIet gör det möjligt för tredjepartstjänster (smarta hem, laddboxar, värmepumpar etc.) att
+automatiskt hämta och optimera mot era tariffer.
+
+## Filer
+
+- `app.py` - FastAPI-applikationen med era tariffer
+- `tariffs.json` - Era tariffer i RISE JSON-format
+- `openapi.json` - OpenAPI-specifikation för APIet
+- `docker-compose.yml` - Docker Compose-konfiguration
+- `Dockerfile` - Docker-byggfil
+
+## Snabbstart
+
+### Alternativ 1: Docker (rekommenderat)
+
+```bash
+# Bygg och starta
+docker-compose up -d
+
+# Verifiera att det fungerar
+curl http://localhost:8000/gridtariff/v0/info
+```
+
+### Alternativ 2: Direkt med Python
+
+```bash
+# Installera beroenden
+pip install fastapi uvicorn
+
+# Starta servern
+python app.py
+```
+
+## API-endpoints
+
+| Endpoint | Beskrivning |
+|----------|-------------|
+| `GET /gridtariff/v0/info` | API-information |
+| `GET /gridtariff/v0/tariffs` | Alla tariffer |
+| `GET /gridtariff/v0/tariffs/{id}` | Specifik tariff |
+| `GET /swagger` | Swagger UI dokumentation |
+
+## Deployment till produktion
+
+### Flytta till en server
+
+1. Kopiera alla filer till er server
+2. Installera Docker: `curl -fsSL https://get.docker.com | sh`
+3. Starta: `docker-compose up -d`
+
+### Registrera hos RISE
+
+För att ert API ska hittas av tjänster behöver ni registrera er hos RISE:s katalog.
+Kontakta eddie.bassey.olsson@ri.se eller mattias.esbjornsson@ri.se.
+
+## Uppdatera tariffer
+
+1. Redigera `tariffs.json` med nya tariffer
+2. Kör `docker-compose restart`
+
+Eller använd Eltariff AI API igen för att generera uppdaterade filer.
+
+## Support
+
+- RISE Eltariff API: https://github.com/RI-SE/Eltariff-API
+- Eltariff AI API: https://eltariff.sourceful.energy
+- elnätsavgift.se: https://elnätsavgift.se
+
+---
+*Genererat med [Eltariff AI API](https://eltariff.sourceful.energy) av Sourceful Energy*

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Explorer - Eltariff AI | Sourceful</title>
+    <meta name="description" content="Utforska befintliga RISE-kompatibla elnätstariff-API:er. Visualisera och förstå tariffer.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sourceful': {
+                            'grey': '#2B2B2B',
+                            'blue': '#2F4A66',
+                            'green': '#017E7A',
+                            'teal': '#00FF84',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+        .gradient-bg { background: linear-gradient(135deg, #2B2B2B 0%, #2F4A66 100%); }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+    <!-- Header -->
+    <header class="gradient-bg text-white">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="45" fill="#00FF84"/>
+                        <path d="M50 20L65 45H55V80H45V45H35L50 20Z" fill="#2B2B2B"/>
+                    </svg>
+                    <div>
+                        <h1 class="text-2xl font-bold">API Explorer</h1>
+                        <p class="text-sm text-gray-300">Utforska RISE-kompatibla API:er</p>
+                    </div>
+                </div>
+                <nav class="flex gap-6">
+                    <a href="/" class="text-gray-300 hover:text-white">Skapa API</a>
+                    <a href="/explorer" class="text-sourceful-teal font-medium">Utforska API</a>
+                    <a href="/api/docs" class="text-gray-300 hover:text-white">API Docs</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <!-- API Selection -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8 border border-gray-100">
+            <h2 class="text-lg font-semibold text-sourceful-grey mb-4">Välj API att utforska</h2>
+
+            <div class="grid md:grid-cols-2 gap-4 mb-6">
+                <!-- Known APIs -->
+                <div>
+                    <h3 class="text-sm font-medium text-sourceful-grey mb-2">Kända API:er</h3>
+                    <button onclick="exploreGoteborgEnergi()"
+                            class="w-full text-left p-4 border border-gray-200 rounded-lg hover:bg-sourceful-green/5 hover:border-sourceful-green transition">
+                        <div class="font-medium text-sourceful-grey">Göteborg Energi Nät AB</div>
+                        <div class="text-sm text-gray-500">api.goteborgenergi.cloud</div>
+                    </button>
+                </div>
+
+                <!-- Custom URL -->
+                <div>
+                    <h3 class="text-sm font-medium text-sourceful-grey mb-2">Egen URL</h3>
+                    <div class="flex gap-2">
+                        <input type="url" id="custom-url" class="flex-1 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-sourceful-green focus:border-sourceful-green"
+                               placeholder="https://api.example.com/gridtariff/v0">
+                        <button onclick="exploreCustom()"
+                                class="bg-sourceful-green text-white px-6 rounded-lg hover:bg-sourceful-blue transition font-medium">
+                            Utforska
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div id="explore-status" class="hidden">
+                <div class="flex items-center gap-2 text-sourceful-green">
+                    <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span id="status-text">Hämtar tariffer...</span>
+                </div>
+            </div>
+
+            <!-- Error -->
+            <div id="explore-error" class="hidden bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg"></div>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="hidden">
+            <!-- Tariff Cards -->
+            <div class="grid lg:grid-cols-2 gap-6 mb-8">
+                <div id="tariff-cards"></div>
+                <div id="tariff-detail" class="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
+                    <h3 class="text-lg font-semibold text-sourceful-grey mb-4">Tariffdetaljer</h3>
+                    <div id="detail-content" class="text-gray-500">
+                        Välj en tariff till vänster för att se detaljer
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8 border border-gray-100">
+                <h3 class="text-lg font-semibold text-sourceful-grey mb-4">Prisvisualisering</h3>
+                <div class="h-80">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Raw JSON -->
+            <div class="bg-white rounded-lg shadow-lg p-6 border border-gray-100">
+                <button onclick="toggleRaw()" class="text-sourceful-green hover:underline mb-4 font-medium">
+                    Visa/dölj rådata (JSON)
+                </button>
+                <div id="raw-json" class="hidden">
+                    <pre class="bg-sourceful-grey text-gray-100 p-4 rounded-lg overflow-auto max-h-96 text-sm"></pre>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="gradient-bg text-white mt-12">
+        <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="45" fill="#00FF84"/>
+                        <path d="M50 20L65 45H55V80H45V45H35L50 20Z" fill="#2B2B2B"/>
+                    </svg>
+                    <div>
+                        <p class="font-semibold">Sourceful Labs AB</p>
+                        <p class="text-sm text-gray-400">Optimerar energianvändning</p>
+                    </div>
+                </div>
+                <div class="text-center md:text-right text-sm text-gray-400">
+                    <a href="https://sourceful.energy" class="text-sourceful-teal hover:underline">sourceful.energy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let tariffsData = null;
+        let priceChart = null;
+
+        function showStatus(msg) {
+            document.getElementById('explore-status').classList.remove('hidden');
+            document.getElementById('status-text').textContent = msg;
+            document.getElementById('explore-error').classList.add('hidden');
+        }
+
+        function hideStatus() {
+            document.getElementById('explore-status').classList.add('hidden');
+        }
+
+        function showError(msg) {
+            hideStatus();
+            const el = document.getElementById('explore-error');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+        }
+
+        async function exploreGoteborgEnergi() {
+            showStatus('Hämtar tariffer från Göteborg Energi...');
+            try {
+                const response = await fetch('/api/explore/goteborg-energi');
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Kunde inte hämta tariffer');
+                }
+
+                hideStatus();
+                displayResults(result);
+            } catch (e) {
+                showError(e.message);
+            }
+        }
+
+        async function exploreCustom() {
+            const url = document.getElementById('custom-url').value;
+            if (!url) {
+                showError('Ange en URL');
+                return;
+            }
+
+            showStatus('Hämtar tariffer...');
+            try {
+                const response = await fetch('/api/explore/fetch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ api_url: url })
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Kunde inte hämta tariffer');
+                }
+
+                hideStatus();
+                displayResults(result);
+            } catch (e) {
+                showError(e.message);
+            }
+        }
+
+        function displayResults(result) {
+            tariffsData = result.tariffs;
+            document.getElementById('results').classList.remove('hidden');
+
+            const cardsContainer = document.getElementById('tariff-cards');
+            cardsContainer.innerHTML = '';
+
+            if (tariffsData && tariffsData.tariffs) {
+                tariffsData.tariffs.forEach((tariff, index) => {
+                    const card = createTariffCard(tariff, index, result.explanations?.[index]);
+                    cardsContainer.appendChild(card);
+                });
+            }
+
+            document.getElementById('raw-json').querySelector('pre').textContent =
+                JSON.stringify(tariffsData, null, 2);
+
+            createPriceChart(tariffsData);
+        }
+
+        function createTariffCard(tariff, index, explanation) {
+            const div = document.createElement('div');
+            div.className = 'bg-white rounded-lg shadow p-4 mb-4 cursor-pointer hover:shadow-lg transition border border-gray-100 hover:border-sourceful-green';
+            div.onclick = () => showTariffDetail(tariff, explanation);
+
+            let fixedCost = '—';
+            if (tariff.fixedPrice?.components?.length) {
+                const comp = tariff.fixedPrice.components[0];
+                fixedCost = `${comp.price?.priceIncVat || 0} ${comp.price?.currency || 'SEK'}`;
+                if (comp.pricedPeriod === 'P1M') fixedCost += '/mån';
+                else if (comp.pricedPeriod === 'P1Y') fixedCost += '/år';
+            }
+
+            div.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h4 class="font-semibold text-sourceful-grey">${tariff.name}</h4>
+                        <p class="text-sm text-gray-500">${tariff.description || ''}</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-lg font-bold text-sourceful-green">${fixedCost}</div>
+                        <div class="text-xs text-gray-400">fast avgift</div>
+                    </div>
+                </div>
+                ${explanation ? `<p class="mt-2 text-sm text-gray-600">${explanation.summary}</p>` : ''}
+            `;
+
+            return div;
+        }
+
+        function showTariffDetail(tariff, explanation) {
+            const container = document.getElementById('detail-content');
+
+            let html = `
+                <h4 class="font-semibold text-lg text-sourceful-grey mb-2">${tariff.name}</h4>
+                <p class="text-gray-600 mb-4">${tariff.description || ''}</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <div class="text-sm font-medium text-gray-500">Företag</div>
+                        <div class="text-sourceful-grey">${tariff.companyName} (${tariff.companyOrgNo})</div>
+                    </div>
+
+                    <div>
+                        <div class="text-sm font-medium text-gray-500">Giltighetsperiod</div>
+                        <div class="text-sourceful-grey">${tariff.validPeriod?.fromIncluding || '—'} → ${tariff.validPeriod?.toExcluding || 'tillsvidare'}</div>
+                    </div>
+            `;
+
+            if (tariff.fixedPrice?.components?.length) {
+                html += `<div><div class="text-sm font-medium text-gray-500">Fasta avgifter</div><ul class="list-disc list-inside text-sourceful-grey">`;
+                tariff.fixedPrice.components.forEach(c => {
+                    html += `<li>${c.name}: ${c.price?.priceIncVat} ${c.price?.currency} inkl. moms</li>`;
+                });
+                html += `</ul></div>`;
+            }
+
+            if (tariff.energyPrice?.components?.length) {
+                html += `<div><div class="text-sm font-medium text-gray-500">Energiavgifter</div><ul class="list-disc list-inside text-sourceful-grey">`;
+                tariff.energyPrice.components.forEach(c => {
+                    html += `<li>${c.name}: ${c.price?.priceIncVat} ${c.price?.currency}/${c.unit || 'kWh'}</li>`;
+                });
+                html += `</ul></div>`;
+            }
+
+            if (tariff.powerPrice?.components?.length) {
+                html += `<div><div class="text-sm font-medium text-gray-500">Effektavgifter</div><ul class="list-disc list-inside text-sourceful-grey">`;
+                tariff.powerPrice.components.forEach(c => {
+                    html += `<li>${c.name}: ${c.price?.priceIncVat} ${c.price?.currency}/${c.unit || 'kW'}</li>`;
+                });
+                html += `</ul></div>`;
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function createPriceChart(data) {
+            if (!data?.tariffs?.length) return;
+
+            const tariff = data.tariffs[0];
+            const labels = [];
+            const values = [];
+
+            if (tariff.energyPrice?.components) {
+                tariff.energyPrice.components.forEach(c => {
+                    labels.push(c.name);
+                    values.push(parseFloat(c.price?.priceIncVat || 0));
+                });
+            }
+
+            if (!labels.length) return;
+
+            const ctx = document.getElementById('priceChart').getContext('2d');
+
+            if (priceChart) {
+                priceChart.destroy();
+            }
+
+            priceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Pris (SEK/kWh inkl. moms)',
+                        data: values,
+                        backgroundColor: [
+                            '#017E7A',
+                            '#00FF84',
+                            '#2F4A66',
+                            '#2B2B2B',
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'SEK/kWh' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleRaw() {
+            const el = document.getElementById('raw-json');
+            el.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>

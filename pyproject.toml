@@ -1,0 +1,40 @@
+[project]
+name = "eltariff"
+version = "0.1.0"
+description = "AI-drivet verktyg för att konvertera svenska elnätstariffer till RISE-standard API"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "Sourceful Energy" }
+]
+keywords = ["eltariff", "rise", "api", "sweden", "electricity", "grid", "tariff"]
+dependencies = [
+    "anthropic>=0.75.0",
+    "beautifulsoup4>=4.14.3",
+    "fastapi>=0.128.0",
+    "httpx>=0.28.1",
+    "jinja2>=3.1.6",
+    "pdfplumber>=0.11.8",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.1",
+    "python-multipart>=0.0.21",
+    "slowapi>=0.1.9",
+    "uvicorn>=0.40.0",
+]
+
+[project.scripts]
+eltariff = "eltariff.main:app"
+
+[project.urls]
+Homepage = "https://eltariff.sourceful.energy"
+Repository = "https://github.com/sourceful-energy/eltariff-ai-api"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/eltariff"]

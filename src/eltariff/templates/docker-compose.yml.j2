@@ -1,0 +1,20 @@
+# {{ company_name }} - Elnätstariff API
+# Genererat med Eltariff AI API (https://eltariff.sourceful.energy)
+
+version: '3.8'
+
+services:
+  {{ service_name }}-tariff-api:
+    build: .
+    container_name: {{ service_name }}-tariff-api
+    ports:
+      - "8000:8000"
+    environment:
+      - TZ=Europe/Stockholm
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/gridtariff/v0/info"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
