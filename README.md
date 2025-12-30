@@ -1,23 +1,29 @@
-# Eltariff AI API
+# Eltariff AI
 
-AI-drivet verktyg för att konvertera svenska elnätstariffer till RISE-standard API.
+AI-drivet webbverktyg för att konvertera svenska elnätstariffer till RISE-standard.
 
 **Byggt av [Sourceful Labs AB](https://sourceful.energy)**
 
-## Funktioner
+## Vad är detta?
 
-- **Tariff-tolkning**: Konvertera PDF, fritext eller webbsidor till RISE-format med AI
-- **Delningsbara resultat**: Varje resultat får en unik URL (`/r/{id}`) som kan delas
-- **API-generering**: Generera kompletta deployment-paket (Docker, FastAPI, OpenAPI)
-- **API Explorer**: Utforska befintliga RISE API:er + användargenererade resultat
-- **Export**: JSON (RISE-format), Excel, eller komplett Docker-paket
+Detta är en webbapplikation som hjälper användare att:
 
-## Snabbstart
+- **Skapa tariffer**: Konvertera PDF:er, fritext eller webbsidor till RISE-format med hjälp av AI
+- **Dela resultat**: Varje genererad tariff får en unik URL som kan delas
+- **Utforska befintliga API:er**: Bläddra bland existerande RISE-API:er via [tariffkatalogen](https://eltariff.deplide.org/tariffcatalogue/all)
+- **Exportera**: Ladda ner som JSON (RISE-format), Excel eller komplett Docker-paket
+
+## RISE Eltariff API-standard
+
+Verktyget följer [RISE Eltariff API-standarden](https://github.com/RI-SE/Eltariff-API) för svenska elnätstariffer.
+
+## Lokal utveckling
 
 ### Förutsättningar
 
 - Python 3.11+
 - [uv](https://docs.astral.sh/uv/) (Python package manager)
+- Node.js (för Tailwind CSS)
 - Anthropic API-nyckel
 
 ### Installation
@@ -27,7 +33,7 @@ AI-drivet verktyg för att konvertera svenska elnätstariffer till RISE-standard
 git clone https://github.com/sourceful-labs/eltariff-ai-api.git
 cd eltariff-ai-api
 
-# Installera beroenden
+# Installera Python-beroenden
 uv sync
 
 # Bygg optimerad CSS (Tailwind)
@@ -49,34 +55,13 @@ uv run uvicorn eltariff.main:app --reload
 open http://localhost:8000
 ```
 
-## Interna endpoints
+## Miljövariabler
 
-| Endpoint | Metod | Beskrivning |
-|----------|-------|-------------|
-| `/api/parse/text` | POST | Tolka tariff från fritext |
-| `/api/parse/pdf` | POST | Tolka tariff från PDF |
-| `/api/parse/url` | POST | Tolka tariff från webbsida (inkl. PDF-länkar) |
-| `/api/parse/combined` | POST | Kombinera URL + PDF + fritext i en analys |
-| `/api/parse/improve` | POST | Förbättra befintlig tariff med AI-instruktion |
-| `/api/generate/json` | POST | Ladda ner tariffdata som JSON (RISE-format) |
-| `/api/generate/package` | POST | Generera deployment-paket (ZIP med Docker) |
-| `/api/generate/excel` | POST | Exportera till Excel |
-| `/api/results/save` | POST | Spara resultat och få delningsbar URL |
-| `/api/results/{id}` | GET | Hämta sparat resultat |
-| `/api/results/list/recent` | GET | Lista senaste användargenererade resultat |
-| `/api/explore/goteborg-energi` | GET | Hämta tariffer från Göteborg Energi (12 st) |
-| `/api/explore/tekniska-verken` | GET | Hämta tariffer från Tekniska verken (171 st) |
-| `/api/explore/fetch` | POST | Hämta tariffer från valfritt RISE-API |
-
-## RISE Eltariff API-standard
-
-Detta verktyg följer [RISE Eltariff API-standarden](https://github.com/RI-SE/Eltariff-API) för svenska elnätstariffer.
-
-## Säkerhet
-
-- **Rate limiting**: 3 AI-anrop/timme per IP
-- **SSRF-skydd**: Blockering av interna IP-adresser
-- **Inputvalidering**: Storleksbegränsningar på text (100KB) och PDF (10MB)
+| Variabel | Beskrivning | Obligatorisk |
+|----------|-------------|--------------|
+| `ANTHROPIC_API_KEY` | API-nyckel för Claude | Ja |
+| `ELTARIFF_STORAGE_DIR` | Lagringsplats för resultat | Nej |
+| `ELTARIFF_CLEANUP_TOKEN` | Token för städ-endpoint | Nej |
 
 ## Deployment
 
@@ -87,41 +72,6 @@ Se [DEPLOYMENT.md](DEPLOYMENT.md) för instruktioner om deployment till Fly.io m
 fly launch
 fly secrets set ANTHROPIC_API_KEY=din-nyckel
 fly deploy
-```
-
-## Miljövariabler
-
-| Variabel | Beskrivning | Obligatorisk |
-|----------|-------------|--------------|
-| `ANTHROPIC_API_KEY` | API-nyckel för Claude | Ja |
-
-## Projektstruktur
-
-```
-eltariff-ai-api/
-├── src/eltariff/
-│   ├── main.py              # FastAPI app
-│   ├── api/
-│   │   ├── parse.py         # AI-tolkning endpoints
-│   │   ├── generate.py      # Export (JSON, Excel, Docker)
-│   │   ├── explore.py       # API Explorer
-│   │   └── results.py       # Delningsbara resultat
-│   ├── models/
-│   │   ├── rise_schema.py   # Pydantic RISE-modeller
-│   │   └── input.py         # Input-modeller
-│   ├── services/
-│   │   ├── ai_parser.py     # Claude Sonnet 4.5 integration
-│   │   ├── pdf_parser.py    # PDF-extraktion (PyMuPDF)
-│   │   ├── url_scraper.py   # URL/PDF-scraping (Crawl4AI)
-│   │   ├── storage.py       # Filbaserad resultatlagring
-│   │   └── api_generator.py # Docker-paket generering
-│   └── templates/
-│       ├── index.html       # Huvudsida (skapa/visa tariff)
-│       └── explorer.html    # API Explorer
-├── data/results/            # Sparade resultat (gitignored)
-├── Dockerfile
-├── fly.toml
-└── pyproject.toml
 ```
 
 ## Licens
