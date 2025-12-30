@@ -1,10 +1,14 @@
 """API endpoints for saving and loading shareable results."""
 
+import os
+
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
+from ..models.rise_schema import TariffsResponse
+from ..services.tariff_guard import check_tariffs_response
 from ..services.storage import get_storage
 
 
@@ -36,6 +40,15 @@ async def save_result(
 
     Rate limited to 30 saves per hour per IP.
     """
+    try:
+        tariffs_response = TariffsResponse.model_validate(body.tariffs_json)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid tariff data: {str(e)}")
+
+    guard = check_tariffs_response(tariffs_response)
+    if not guard.ok:
+        raise HTTPException(status_code=400, detail=guard.reason)
+
     storage = get_storage()
 
     # Get tracking info from request
@@ -80,3 +93,26 @@ async def get_result(result_id: str):
         "source_url": result.get("source_url"),
         "tariffs": result.get("data"),
     }
+
+
+@router.get("/cleanup", include_in_schema=False)
+async def cleanup_results(
+    request: Request,
+    all: bool = False,
+    max_age_days: int | None = None,
+    token: str | None = None,
+):
+    """Cleanup stored results (undocumented, for admin use)."""
+    required_token = os.environ.get("ELTARIFF_CLEANUP_TOKEN")
+    if required_token and token != required_token:
+        raise HTTPException(status_code=403, detail="Invalid cleanup token")
+
+    if not all and max_age_days is None:
+        raise HTTPException(status_code=400, detail="Provide all=true or max_age_days")
+
+    if max_age_days is not None and max_age_days < 0:
+        raise HTTPException(status_code=400, detail="max_age_days must be >= 0")
+
+    storage = get_storage()
+    deleted = storage.cleanup(max_age_days=max_age_days, delete_all=all)
+    return {"deleted": deleted}

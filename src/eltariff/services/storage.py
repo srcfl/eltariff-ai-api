@@ -5,7 +5,7 @@ import json
 import os
 import secrets
 import string
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -161,6 +161,36 @@ class ResultStorage:
             except (json.JSONDecodeError, IOError):
                 continue
         return results
+
+    def cleanup(self, max_age_days: int | None = None, delete_all: bool = False) -> int:
+        """Delete stored results by age or all results.
+
+        Args:
+            max_age_days: Delete results older than this many days
+            delete_all: Delete all results regardless of age
+
+        Returns:
+            Number of deleted results
+        """
+        if delete_all:
+            max_age_days = None
+
+        cutoff = None
+        if max_age_days is not None:
+            cutoff = datetime.now() - timedelta(days=max_age_days)
+
+        deleted = 0
+        for file_path in self.storage_dir.glob("*.json"):
+            try:
+                if cutoff is not None:
+                    mtime = datetime.fromtimestamp(file_path.stat().st_mtime)
+                    if mtime >= cutoff:
+                        continue
+                file_path.unlink()
+                deleted += 1
+            except OSError:
+                continue
+        return deleted
 
 
 # Singleton instance

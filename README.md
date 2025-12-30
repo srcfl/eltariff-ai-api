@@ -70,7 +70,7 @@ Detta verktyg följer [RISE Eltariff API-standarden](https://github.com/RI-SE/El
 
 ## Säkerhet
 
-- **Rate limiting**: 10 AI-anrop/timme per IP
+- **Rate limiting**: 3 AI-anrop/timme per IP
 - **SSRF-skydd**: Blockering av interna IP-adresser
 - **Inputvalidering**: Storleksbegränsningar på text (100KB) och PDF (10MB)
 
@@ -106,7 +106,7 @@ eltariff-ai-api/
 │   │   ├── rise_schema.py   # Pydantic RISE-modeller
 │   │   └── input.py         # Input-modeller
 │   ├── services/
-│   │   ├── ai_parser.py     # Claude Sonnet 4 integration
+│   │   ├── ai_parser.py     # Claude Sonnet 4.5 integration
 │   │   ├── pdf_parser.py    # PDF-extraktion (PyMuPDF)
 │   │   ├── url_scraper.py   # URL/PDF-scraping (Crawl4AI)
 │   │   ├── storage.py       # Filbaserad resultatlagring

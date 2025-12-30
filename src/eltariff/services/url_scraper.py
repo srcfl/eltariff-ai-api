@@ -226,6 +226,15 @@ class URLScraper:
         lines = [line.strip() for line in text.split("\n") if line.strip()]
         return "\n".join(lines)
 
+    async def fetch_json(self, url: str) -> dict:
+        """Fetch JSON data from a URL with SSRF protections."""
+        is_safe_url(url)
+
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            response = await client.get(url, headers=self.headers, follow_redirects=True)
+            response.raise_for_status()
+            return response.json()
+
     async def fetch_rise_api(self, api_url: str) -> dict:
         """Fetch data from a RISE-compatible API.
 

@@ -79,32 +79,20 @@
 
         <!-- API Selection -->
         <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6 sm:mb-8 border border-gray-100">
-            <h2 class="text-base sm:text-lg font-semibold text-sourceful-grey mb-3 sm:mb-4">Välj API att utforska</h2>
+            <h2 class="text-base sm:text-lg font-semibold text-sourceful-grey mb-2 sm:mb-3">Välj API att utforska</h2>
+            <p class="text-xs text-gray-500 mb-4">
+                Katalogkälla:
+                <a href="https://eltariff.deplide.org/tariffcatalogue/all" class="text-sourceful-green underline hover:text-sourceful-blue" target="_blank" rel="noopener">
+                    https://eltariff.deplide.org/tariffcatalogue/all
+                </a>
+            </p>
+
+            <div id="catalogue-loading" class="text-sm text-gray-500 mb-4">Laddar tariffkatalog...</div>
+            <div id="catalogue-error" class="hidden text-sm text-red-600 mb-4"></div>
+            <div id="catalogue-empty" class="hidden text-sm text-gray-500 mb-4">Inga katalog-API:er hittades.</div>
+            <div id="catalogue-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6"></div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                <!-- Göteborg Energi -->
-                <div>
-                    <h3 class="text-sm font-medium text-sourceful-grey mb-2">Göteborg</h3>
-                    <button onclick="exploreGoteborgEnergi()"
-                            class="w-full text-left p-4 border border-gray-200 rounded-lg hover:bg-sourceful-green/5 hover:border-sourceful-green transition h-full">
-                        <div class="font-medium text-sourceful-grey">Göteborg Energi Nät AB</div>
-                        <div class="text-sm text-gray-500">api.goteborgenergi.cloud</div>
-                        <div class="text-xs text-sourceful-green mt-1">12 tariffer • Tidsdifferentierad</div>
-                    </button>
-                </div>
-
-                <!-- Tekniska verken -->
-                <div>
-                    <h3 class="text-sm font-medium text-sourceful-grey mb-2">Linköping</h3>
-                    <button onclick="exploreTekniskaVerken()"
-                            class="w-full text-left p-4 border border-gray-200 rounded-lg hover:bg-sourceful-green/5 hover:border-sourceful-green transition h-full">
-                        <div class="font-medium text-sourceful-grey">Tekniska verken Nät AB</div>
-                        <div class="text-sm text-gray-500">api.tekniskaverken.net</div>
-                        <div class="text-xs text-sourceful-green mt-1">171 tariffer • RISE-kompatibel</div>
-                    </button>
-                </div>
-
-                <!-- Custom URL -->
                 <div>
                     <h3 class="text-sm font-medium text-sourceful-grey mb-2">Egen URL</h3>
                     <div class="flex flex-col gap-2">
@@ -282,27 +270,83 @@
             el.classList.remove('hidden');
         }
 
-        async function exploreGoteborgEnergi() {
-            showStatus('Hämtar tariffer från Göteborg Energi...');
+        async function loadCatalogueApis() {
+            const loadingEl = document.getElementById('catalogue-loading');
+            const errorEl = document.getElementById('catalogue-error');
+            const emptyEl = document.getElementById('catalogue-empty');
+            const gridEl = document.getElementById('catalogue-grid');
+
+            loadingEl.classList.remove('hidden');
+            errorEl.classList.add('hidden');
+            emptyEl.classList.add('hidden');
+            gridEl.innerHTML = '';
+
             try {
-                const response = await fetch('/api/explore/goteborg-energi');
+                const response = await fetch('/api/explore/catalogue');
                 const result = await response.json();
 
                 if (!result.success) {
-                    throw new Error(result.error || 'Kunde inte hämta tariffer');
+                    throw new Error(result.error || 'Kunde inte ladda katalog');
                 }
 
-                hideStatus();
-                displayResults(result);
+                const apis = Array.isArray(result.apis) ? result.apis : [];
+                if (!apis.length) {
+                    emptyEl.classList.remove('hidden');
+                    return;
+                }
+
+                apis.forEach((api) => {
+                    const apiUrl = api.api_url || api.apiUrl || '';
+                    if (!apiUrl) {
+                        return;
+                    }
+
+                    const name = api.name || api.company || api.title || apiUrl;
+                    const region = api.region ? ` • ${api.region}` : '';
+                    const count = Number.isFinite(api.tariff_count) ? ` • ${api.tariff_count} tariffer` : '';
+                    const description = api.description || '';
+                    const orgNo = api.company_org_no ? `Org.nr: ${api.company_org_no}` : '';
+                    const metering = api.metering_point_id_from && api.metering_point_id_to
+                        ? `Mätpunkt: ${api.metering_point_id_from}–${api.metering_point_id_to}`
+                        : '';
+                    const detailLine = description || orgNo || metering || 'RISE-kompatibel';
+                    const hostname = (() => {
+                        try {
+                            return new URL(apiUrl).hostname;
+                        } catch (e) {
+                            return apiUrl;
+                        }
+                    })();
+
+                    const card = document.createElement('button');
+                    card.type = 'button';
+                    card.className = 'w-full text-left p-4 border border-gray-200 rounded-lg hover:bg-sourceful-green/5 hover:border-sourceful-green transition h-full';
+                    card.addEventListener('click', () => exploreCatalogueApi(apiUrl, name));
+                    card.innerHTML = `
+                        <div class="font-medium text-sourceful-grey">${name}</div>
+                        <div class="text-sm text-gray-500">${hostname}</div>
+                        <div class="text-xs text-sourceful-green mt-1">${detailLine}${count}${region}</div>
+                    `;
+
+                    gridEl.appendChild(card);
+                });
             } catch (e) {
-                showError(e.message);
+                errorEl.textContent = e.message;
+                errorEl.classList.remove('hidden');
+            } finally {
+                loadingEl.classList.add('hidden');
             }
         }
 
-        async function exploreTekniskaVerken() {
-            showStatus('Hämtar tariffer från Tekniska verken (171 st, kan ta en stund)...');
+        async function exploreCatalogueApi(apiUrl, displayName) {
+            const name = displayName || apiUrl;
+            showStatus(`Hämtar tariffer från ${name}...`);
             try {
-                const response = await fetch('/api/explore/tekniska-verken');
+                const response = await fetch('/api/explore/fetch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ api_url: apiUrl })
+                });
                 const result = await response.json();
 
                 if (!result.success) {
@@ -343,6 +387,10 @@
                 showError(e.message);
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCatalogueApis();
+        });
 
         function displayResults(result) {
             tariffsData = result.tariffs;

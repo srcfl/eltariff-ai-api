@@ -37,7 +37,7 @@ src/eltariff/
 │   ├── rise_schema.py   # Pydantic RISE-modeller (snake_case attrs, camelCase JSON)
 │   └── input.py         # Request-modeller
 ├── services/
-│   ├── ai_parser.py     # Anthropic Claude Sonnet 4 integration
+│   ├── ai_parser.py     # Anthropic Claude Sonnet 4.5 integration
 │   ├── pdf_parser.py    # PyMuPDF för PDF-extraktion
 │   ├── url_scraper.py   # URL/PDF-scraping med httpx + Crawl4AI
 │   ├── storage.py       # Filbaserad lagring för delningsbara resultat
@@ -60,7 +60,7 @@ data/results/            # Sparade resultat (gitignored)
 - Explorer visar "Användargenererade API:er" sektion
 
 ### AI-parser
-- Använder Claude Sonnet 4 (claude-sonnet-4-20250514)
+- Använder Claude Sonnet 4.5 (claude-sonnet-4-5)
 - Förut: Opus med extended thinking → För komplext, tog för lång tid
 - Nuvarande: Enkel Sonnet med optimerad prompt
 - Terminal UI i frontend visar progress-meddelanden
@@ -82,7 +82,7 @@ data/results/            # Sparade resultat (gitignored)
 - Tekniska verken: `https://api.tekniskaverken.net/subscription/public/v0`
 
 ### Rate Limiting
-- 10 AI-anrop per timme per IP (slowapi)
+- 3 AI-anrop per timme per IP (slowapi)
 - Gäller endpoints under `/api/parse/`
 
 ### Frontend

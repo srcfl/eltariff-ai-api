@@ -12,6 +12,7 @@ from slowapi.util import get_remote_address
 from ..models.rise_schema import TariffsResponse
 from ..services.ai_parser import TariffParser
 from ..services.pdf_parser import PDFParser
+from ..services.tariff_guard import check_el_tariff_text, check_tariffs_response
 from ..services.url_scraper import URLScraper
 
 
@@ -30,7 +31,7 @@ class StreamRequest(BaseModel):
 
 router = APIRouter(prefix="/api/parse", tags=["parse"])
 
-# Rate limiter - 10 requests per hour per IP (to prevent API abuse)
+# Rate limiter - 3 requests per hour per IP (to prevent API abuse)
 limiter = Limiter(key_func=get_remote_address)
 
 # Security limits
@@ -40,13 +41,13 @@ MAX_URL_LENGTH = 2048  # Standard URL length limit
 
 
 @router.post("/text", response_model=TariffsResponse)
-@limiter.limit("10/hour")
+@limiter.limit("3/hour")
 async def parse_text(
     request: Request,
     content: str = Form(..., description="Tariff description text"),
     company_name: str | None = Form(None, description="Company name"),
 ):
-    """Parse tariff information from text. Rate limited to 10 requests/hour."""
+    """Parse tariff information from text. Rate limited to 3 requests/hour."""
     # Input validation
     if len(content) > MAX_TEXT_LENGTH:
         raise HTTPException(
@@ -57,6 +58,10 @@ async def parse_text(
     if not content.strip():
         raise HTTPException(status_code=400, detail="Content cannot be empty")
 
+    guard = check_el_tariff_text(content)
+    if not guard.ok:
+        raise HTTPException(status_code=400, detail=guard.reason)
+
     try:
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
@@ -64,6 +69,9 @@ async def parse_text(
 
         parser = TariffParser(api_key)
         result = await parser.parse_text(content, company_name)
+        guard_result = check_tariffs_response(result)
+        if not guard_result.ok:
+            raise HTTPException(status_code=400, detail=guard_result.reason)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -72,13 +80,13 @@ async def parse_text(
 
 
 @router.post("/pdf", response_model=TariffsResponse)
-@limiter.limit("10/hour")
+@limiter.limit("3/hour")
 async def parse_pdf(
     request: Request,
     file: UploadFile = File(..., description="PDF file with tariff information"),
     company_name: str | None = Form(None, description="Company name"),
 ):
-    """Parse tariff information from a PDF file. Rate limited to 10 requests/hour."""
+    """Parse tariff information from a PDF file. Rate limited to 3 requests/hour."""
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="File must be a PDF")
 
@@ -100,6 +108,10 @@ async def parse_pdf(
                 status_code=400, detail="Could not extract text from PDF"
             )
 
+        guard = check_el_tariff_text(text)
+        if not guard.ok:
+            raise HTTPException(status_code=400, detail=guard.reason)
+
         # Parse with AI
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
@@ -107,6 +119,9 @@ async def parse_pdf(
 
         parser = TariffParser(api_key)
         result = await parser.parse_pdf_content(text, company_name)
+        guard_result = check_tariffs_response(result)
+        if not guard_result.ok:
+            raise HTTPException(status_code=400, detail=guard_result.reason)
         return result
     except HTTPException:
         raise
@@ -117,13 +132,13 @@ async def parse_pdf(
 
 
 @router.post("/url", response_model=TariffsResponse)
-@limiter.limit("10/hour")
+@limiter.limit("3/hour")
 async def parse_url(
     request: Request,
     url: str = Form(..., description="URL with tariff information"),
     company_name: str | None = Form(None, description="Company name"),
 ):
-    """Parse tariff information from a URL (supports both web pages and PDFs). Rate limited to 10 requests/hour."""
+    """Parse tariff information from a URL (supports both web pages and PDFs). Rate limited to 3 requests/hour."""
     # URL validation
     if len(url) > MAX_URL_LENGTH:
         raise HTTPException(
@@ -141,6 +156,10 @@ async def parse_url(
                 status_code=400, detail="Could not extract content from URL"
             )
 
+        guard = check_el_tariff_text(text)
+        if not guard.ok:
+            raise HTTPException(status_code=400, detail=guard.reason)
+
         # Parse with AI
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
@@ -148,6 +167,9 @@ async def parse_url(
 
         parser = TariffParser(api_key)
         result = await parser.parse_text(text, company_name)
+        guard_result = check_tariffs_response(result)
+        if not guard_result.ok:
+            raise HTTPException(status_code=400, detail=guard_result.reason)
         return result
     except HTTPException:
         raise
@@ -158,7 +180,7 @@ async def parse_url(
 
 
 @router.post("/combined", response_model=TariffsResponse)
-@limiter.limit("10/hour")
+@limiter.limit("3/hour")
 async def parse_combined(
     request: Request,
     url: str | None = Form(None, description="URL with tariff information"),
@@ -168,7 +190,7 @@ async def parse_combined(
     """Parse tariff information from multiple sources (URL, PDF, text).
 
     Combines all provided inputs for best AI analysis.
-    Rate limited to 10 requests/hour.
+    Rate limited to 3 requests/hour.
     """
     combined_content = []
 
@@ -226,6 +248,10 @@ async def parse_combined(
     # Combine all content
     full_content = "\n\n".join(combined_content)
 
+    guard = check_el_tariff_text(full_content)
+    if not guard.ok:
+        raise HTTPException(status_code=400, detail=guard.reason)
+
     # Parse with AI
     try:
         api_key = os.environ.get("ANTHROPIC_API_KEY")
@@ -235,6 +261,9 @@ async def parse_combined(
         parser = TariffParser(api_key)
         # Note: company_name is now extracted by AI from content
         result = await parser.parse_text(full_content, None)
+        guard_result = check_tariffs_response(result)
+        if not guard_result.ok:
+            raise HTTPException(status_code=400, detail=guard_result.reason)
         return result
     except HTTPException:
         raise
@@ -245,7 +274,7 @@ async def parse_combined(
 
 
 @router.post("/improve", response_model=TariffsResponse)
-@limiter.limit("10/hour")
+@limiter.limit("3/hour")
 async def improve_tariffs(
     request: Request,
     body: ImproveRequest,
@@ -254,7 +283,7 @@ async def improve_tariffs(
 
     Takes existing tariff JSON and a natural language instruction,
     and returns updated tariff data.
-    Rate limited to 10 requests/hour.
+    Rate limited to 3 requests/hour.
     """
     try:
         # Validate JSON
@@ -266,12 +295,25 @@ async def improve_tariffs(
         raise HTTPException(status_code=400, detail="Instruction cannot be empty")
 
     try:
+        tariffs_response = TariffsResponse.model_validate(tariffs_data)
+        guard_result = check_tariffs_response(tariffs_response)
+        if not guard_result.ok:
+            raise HTTPException(status_code=400, detail=guard_result.reason)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid tariff data: {str(e)}")
+
+    try:
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
             raise HTTPException(status_code=500, detail="API key not configured")
 
         parser = TariffParser(api_key)
         result = await parser.improve_tariffs(tariffs_data, body.instruction)
+        guard_result = check_tariffs_response(result)
+        if not guard_result.ok:
+            raise HTTPException(status_code=400, detail=guard_result.reason)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -280,7 +322,7 @@ async def improve_tariffs(
 
 
 @router.post("/stream")
-@limiter.limit("10/hour")
+@limiter.limit("3/hour")
 async def stream_analysis(
     request: Request,
     body: StreamRequest,
@@ -319,13 +361,18 @@ async def stream_analysis(
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Inget innehåll att analysera'})}\n\n"
                 return
 
+            guard = check_el_tariff_text(content_to_parse)
+            if not guard.ok:
+                yield f"data: {json.dumps({'type': 'error', 'message': guard.reason})}\n\n"
+                return
+
             # Initialize parser
             api_key = os.environ.get("ANTHROPIC_API_KEY")
             if not api_key:
                 yield f"data: {json.dumps({'type': 'error', 'message': 'API-nyckel saknas'})}\n\n"
                 return
 
-            yield f"data: {json.dumps({'type': 'status', 'message': 'Startar AI-analys med Opus...'})}\n\n"
+            yield f"data: {json.dumps({'type': 'status', 'message': 'Startar AI-analys med Sonnet 4.5...'})}\n\n"
 
             parser = TariffParser(api_key)
 

@@ -197,7 +197,7 @@ class TariffParser:
     async def parse_text(
         self, text: str, company_name: str | None = None
     ) -> TariffsResponse:
-        """Parse tariff information from text using Claude Sonnet."""
+        """Parse tariff information from text using Claude Sonnet 4.5."""
         # Truncate input if too long
         max_input_chars = 50000
         if len(text) > max_input_chars:
@@ -217,7 +217,7 @@ Tariffbeskrivning:
 {text}"""
 
         response = self.client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-5",
             max_tokens=16000,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_prompt}],
@@ -253,7 +253,7 @@ Tariffbeskrivning:
         try:
             # Simple streaming without extended thinking
             with self.client.messages.stream(
-                model="claude-opus-4-20250514",
+                model="claude-sonnet-4-5",
                 max_tokens=16000,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": user_prompt}],
@@ -307,7 +307,7 @@ INSTRUKTION: {instruction}
 Returnera den uppdaterade JSON:en (endast JSON, ingen förklaring):"""
 
         response = self.client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-5",
             max_tokens=16000,
             system=improve_system,
             messages=[{"role": "user", "content": user_prompt}],
@@ -343,7 +343,7 @@ Formatera svaret som JSON:
 }}"""
 
         response = self.client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-5",
             max_tokens=2048,
             messages=[{"role": "user", "content": user_prompt}],
         )
