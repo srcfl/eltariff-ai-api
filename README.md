@@ -7,8 +7,10 @@ AI-drivet verktyg för att konvertera svenska elnätstariffer till RISE-standard
 ## Funktioner
 
 - **Tariff-tolkning**: Konvertera PDF, fritext eller webbsidor till RISE-format med AI
+- **Delningsbara resultat**: Varje resultat får en unik URL (`/r/{id}`) som kan delas
 - **API-generering**: Generera kompletta deployment-paket (Docker, FastAPI, OpenAPI)
-- **API Explorer**: Utforska och visualisera befintliga RISE-kompatibla API:er
+- **API Explorer**: Utforska befintliga RISE API:er + användargenererade resultat
+- **Export**: JSON (RISE-format), Excel, eller komplett Docker-paket
 
 ## Snabbstart
 
@@ -51,9 +53,13 @@ open http://localhost:8000
 | `/api/parse/pdf` | POST | Tolka tariff från PDF |
 | `/api/parse/url` | POST | Tolka tariff från webbsida (inkl. PDF-länkar) |
 | `/api/parse/combined` | POST | Kombinera URL + PDF + fritext i en analys |
+| `/api/parse/improve` | POST | Förbättra befintlig tariff med AI-instruktion |
 | `/api/generate/json` | POST | Ladda ner tariffdata som JSON (RISE-format) |
 | `/api/generate/package` | POST | Generera deployment-paket (ZIP med Docker) |
 | `/api/generate/excel` | POST | Exportera till Excel |
+| `/api/results/save` | POST | Spara resultat och få delningsbar URL |
+| `/api/results/{id}` | GET | Hämta sparat resultat |
+| `/api/results/list/recent` | GET | Lista senaste användargenererade resultat |
 | `/api/explore/goteborg-energi` | GET | Hämta tariffer från Göteborg Energi (12 st) |
 | `/api/explore/tekniska-verken` | GET | Hämta tariffer från Tekniska verken (171 st) |
 | `/api/explore/fetch` | POST | Hämta tariffer från valfritt RISE-API |
@@ -93,18 +99,22 @@ eltariff-ai-api/
 │   ├── main.py              # FastAPI app
 │   ├── api/
 │   │   ├── parse.py         # AI-tolkning endpoints
-│   │   ├── generate.py      # Kodgenerering
-│   │   └── explore.py       # API Explorer
+│   │   ├── generate.py      # Export (JSON, Excel, Docker)
+│   │   ├── explore.py       # API Explorer
+│   │   └── results.py       # Delningsbara resultat
 │   ├── models/
 │   │   ├── rise_schema.py   # Pydantic RISE-modeller
 │   │   └── input.py         # Input-modeller
 │   ├── services/
-│   │   ├── ai_parser.py     # Anthropic-integration
-│   │   ├── pdf_parser.py    # PDF-extraktion
-│   │   ├── url_scraper.py   # URL-scraping
-│   │   └── api_generator.py # Kodgenerering
+│   │   ├── ai_parser.py     # Claude Sonnet 4 integration
+│   │   ├── pdf_parser.py    # PDF-extraktion (PyMuPDF)
+│   │   ├── url_scraper.py   # URL/PDF-scraping (Crawl4AI)
+│   │   ├── storage.py       # Filbaserad resultatlagring
+│   │   └── api_generator.py # Docker-paket generering
 │   └── templates/
-│       └── *.html           # Web UI
+│       ├── index.html       # Huvudsida (skapa/visa tariff)
+│       └── explorer.html    # API Explorer
+├── data/results/            # Sparade resultat (gitignored)
 ├── Dockerfile
 ├── fly.toml
 └── pyproject.toml

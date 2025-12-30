@@ -106,7 +106,7 @@ fly open
 ## Rate Limiting
 
 API:et har inbyggd rate limiting:
-- AI-endpoints: 10 requests/minut per IP
+- AI-endpoints: 10 requests/timme per IP
 - Övriga endpoints: Ingen begränsning
 
 ## Kostnadsuppskattning (Fly.io)

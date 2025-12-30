@@ -29,23 +29,46 @@ fly deploy
 src/eltariff/
 ├── main.py              # FastAPI app, routes för / och /explorer
 ├── api/
-│   ├── parse.py         # AI-tolkning: /api/parse/{text,pdf,url,combined}
+│   ├── parse.py         # AI-tolkning: /api/parse/{text,pdf,url,combined,improve}
 │   ├── generate.py      # Export: /api/generate/{json,excel,package}
-│   └── explore.py       # API Explorer: /api/explore/{goteborg-energi,tekniska-verken}
+│   ├── explore.py       # API Explorer: /api/explore/{goteborg-energi,tekniska-verken}
+│   └── results.py       # Delningsfunktion: /api/results/{save,list,id}
 ├── models/
 │   ├── rise_schema.py   # Pydantic RISE-modeller (snake_case attrs, camelCase JSON)
 │   └── input.py         # Request-modeller
 ├── services/
-│   ├── ai_parser.py     # Anthropic Claude integration
+│   ├── ai_parser.py     # Anthropic Claude Sonnet 4 integration
 │   ├── pdf_parser.py    # PyMuPDF för PDF-extraktion
-│   ├── url_scraper.py   # URL/PDF-scraping med httpx
+│   ├── url_scraper.py   # URL/PDF-scraping med httpx + Crawl4AI
+│   ├── storage.py       # Filbaserad lagring för delningsbara resultat
 │   └── api_generator.py # Genererar deployment-paket
 ├── templates/
-│   ├── index.html       # Huvudsida med tariff-editor
-│   └── explorer.html    # API Explorer för befintliga API:er
+│   ├── index.html       # Huvudsida med tariff-editor (skapar/visar)
+│   └── explorer.html    # API Explorer + användargenererade API:er
 └── static/
     └── sourceful-logo.png
+data/results/            # Sparade resultat (gitignored)
 ```
+
+## Nyckelfunktioner (december 2024)
+
+### Delningsbara resultat
+- Resultat auto-sparas med unik ID och URL uppdateras
+- Format: `/r/{id}` → t.ex. `https://eltariff.sourceful.dev/r/abc123`
+- Två lägen: "Skapa" (redigering) och "Visa" (endast läsning)
+- Tracking: hashed IP, user-agent, käll-URL
+- Explorer visar "Användargenererade API:er" sektion
+
+### AI-parser
+- Använder Claude Sonnet 4 (claude-sonnet-4-20250514)
+- Förut: Opus med extended thinking → För komplext, tog för lång tid
+- Nuvarande: Enkel Sonnet med optimerad prompt
+- Terminal UI i frontend visar progress-meddelanden
+
+### URL-scraping med PDF-stöd
+- URL kan peka på PDF direkt (Content-Type detection)
+- Crawl4AI för JavaScript-renderade sidor
+- SSRF-skydd för interna IP-adresser
 
 ## Viktiga tekniska detaljer
 
@@ -66,12 +89,38 @@ src/eltariff/
 - Vanilla JS med Tailwind CSS (via CDN)
 - Jinja2-templates
 - Färger: `sourceful-green: #017E7A`, `sourceful-grey: #1A1A1A`
+- Mobilanpassad (responsiv layout)
 
 ## Miljövariabler
 
 ```bash
 ANTHROPIC_API_KEY=sk-ant-...  # Obligatorisk
+ELTARIFF_STORAGE_DIR=/path    # Optional: Var resultat sparas
 ```
+
+## API Endpoints
+
+### Parse (AI-tolkning)
+- `POST /api/parse/text` - Fritext till RISE
+- `POST /api/parse/pdf` - PDF till RISE
+- `POST /api/parse/url` - URL/webbsida till RISE (stödjer PDF-länkar)
+- `POST /api/parse/combined` - Kombinera URL + PDF + text
+- `POST /api/parse/improve` - Förbättra befintlig tariff med AI
+
+### Generate (Export)
+- `POST /api/generate/json` - Ladda ner JSON (RISE-format)
+- `POST /api/generate/excel` - Exportera till Excel
+- `POST /api/generate/package` - Docker deployment-paket (ZIP)
+
+### Results (Delning)
+- `POST /api/results/save` - Spara resultat, returnerar ID
+- `GET /api/results/list/recent` - Lista senaste resultat
+- `GET /api/results/{id}` - Hämta sparat resultat
+
+### Explore (Befintliga API:er)
+- `GET /api/explore/goteborg-energi` - Göteborg Energi tariffer
+- `GET /api/explore/tekniska-verken` - Tekniska verken tariffer
+- `POST /api/explore/fetch` - Hämta från valfritt RISE-API
 
 ## Vanliga uppgifter
 
@@ -82,11 +131,19 @@ ANTHROPIC_API_KEY=sk-ant-...  # Obligatorisk
 
 ### Ändra AI-prompt
 - Se `src/eltariff/services/ai_parser.py`
+- `SYSTEM_PROMPT` för parse, `improve_tariffs()` för förbättringar
 - Prompten innehåller RISE-schema och exempel
 
 ### Uppdatera RISE-schema
 - Modeller finns i `src/eltariff/models/rise_schema.py`
 - Generatorn i `api_generator.py` måste matcha schemat
+
+## Kända problem
+
+### Anthropic API 5xx (Cloudflare 520)
+- Tillfälligt infrastrukturproblem hos Anthropic
+- Åtgärd: Vänta och försök igen
+- Optional: Lägg till retry-logik i `ai_parser.py`
 
 ## Deployment
 
@@ -94,3 +151,11 @@ Fly.io med custom domain:
 - App: `eltariff-ai-api`
 - Domain: `eltariff.sourceful.dev`
 - Se `DEPLOYMENT.md` för detaljer
+
+## Commit-historik (senaste)
+
+```
+c54c778 Ignorera data/ mappen (sparade resultat)
+bd3b67f Förbättra mobil-responsivitet
+d94f830 Förenklad AI + delningsfunktion + två lägen (skapa/visa)
+```
