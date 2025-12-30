@@ -1,0 +1,10 @@
+{
+  "name": "eltariff-ai-api",
+  "private": true,
+  "devDependencies": {
+    "tailwindcss": "^3.4.13"
+  },
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/eltariff/static/styles/tailwind.css -o ./src/eltariff/static/styles/app.css --minify"
+  }
+}

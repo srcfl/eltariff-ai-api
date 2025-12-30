@@ -16,6 +16,7 @@ Använd `uv` för beroendehantering och körning.
 - `uv sync` installerar alla beroenden (inklusive dev-beroenden från `pyproject.toml`).
 - `uv run uvicorn eltariff.main:app --reload` startar utvecklingsservern.
 - `PYTHONPATH=src uv run uvicorn eltariff.main:app --reload` om imports fallerar lokalt.
+- `npm install` och `npm run build:css` bygger den optimerade Tailwind CSS-filen till `src/eltariff/static/styles/app.css`.
 - `fly deploy` deployar till Fly.io (se `DEPLOYMENT.md`).
 
 ## Kodstil & namngivning

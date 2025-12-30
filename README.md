@@ -30,6 +30,10 @@ cd eltariff-ai-api
 # Installera beroenden
 uv sync
 
+# Bygg optimerad CSS (Tailwind)
+npm install
+npm run build:css
+
 # Skapa .env-fil
 cp .env.example .env
 # Redigera .env och lägg till din ANTHROPIC_API_KEY

@@ -4,39 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eltariff AI - Skapa RISE-kompatibelt API | Sourceful</title>
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PMJLW2HNPT"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-PMJLW2HNPT');
-    </script>
     <meta name="description" content="Konvertera dina elnätstariffer till maskinläsbart RISE API-format med AI. Gratis verktyg från Sourceful Labs AB.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preload" href="/static/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/static/styles/app.css">
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'sourceful': {
-                            'grey': '#2B2B2B',
-                            'blue': '#2F4A66',
-                            'green': '#017E7A',
-                            'teal': '#00FF84',
-                        }
-                    },
-                    fontFamily: {
-                        'sans': ['Inter', 'system-ui', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         .loading { opacity: 0.5; pointer-events: none; }
         pre { white-space: pre-wrap; word-wrap: break-word; }
@@ -1461,6 +1432,27 @@ Småhus 16-25A: Fast 185 kr/mån, Höglast 0.25 kr/kWh, Låglast 0.15 kr/kWh"></
                 loadTemplateIfExists();
             }
         });
+    </script>
+    <script>
+        (function () {
+            const gaId = 'G-PMJLW2HNPT';
+            function loadAnalytics() {
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+                document.head.appendChild(script);
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                window.gtag = gtag;
+                gtag('js', new Date());
+                gtag('config', gaId);
+            }
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(loadAnalytics, { timeout: 2000 });
+            } else {
+                window.addEventListener('load', loadAnalytics, { once: true });
+            }
+        })();
     </script>
 </body>
 </html>
