@@ -37,7 +37,7 @@ src/eltariff/
 │   ├── rise_schema.py   # Pydantic RISE-modeller (snake_case attrs, camelCase JSON)
 │   └── input.py         # Request-modeller
 ├── services/
-│   ├── ai_parser.py     # Anthropic Claude Sonnet 4.5 integration
+│   ├── ai_parser.py     # OpenRouter integration (Claude Sonnet 4)
 │   ├── pdf_parser.py    # PyMuPDF för PDF-extraktion
 │   ├── url_scraper.py   # URL/PDF-scraping med httpx + Crawl4AI
 │   ├── storage.py       # Filbaserad lagring för delningsbara resultat
@@ -60,9 +60,8 @@ data/results/            # Sparade resultat (gitignored)
 - Explorer visar "Användargenererade API:er" sektion
 
 ### AI-parser
-- Använder Claude Sonnet 4.5 (claude-sonnet-4-5)
-- Förut: Opus med extended thinking → För komplext, tog för lång tid
-- Nuvarande: Enkel Sonnet med optimerad prompt
+- Använder OpenRouter som backend (anthropic/claude-sonnet-4)
+- OpenAI-kompatibelt API via https://openrouter.ai/api/v1
 - Terminal UI i frontend visar progress-meddelanden
 
 ### URL-scraping med PDF-stöd
@@ -94,8 +93,8 @@ data/results/            # Sparade resultat (gitignored)
 ## Miljövariabler
 
 ```bash
-ANTHROPIC_API_KEY=sk-ant-...  # Obligatorisk
-ELTARIFF_STORAGE_DIR=/path    # Optional: Var resultat sparas
+OPENROUTER_API_KEY=sk-or-v1-...  # Obligatorisk (OpenRouter API-nyckel)
+ELTARIFF_STORAGE_DIR=/path       # Optional: Var resultat sparas
 ```
 
 ## API Endpoints
@@ -140,10 +139,10 @@ ELTARIFF_STORAGE_DIR=/path    # Optional: Var resultat sparas
 
 ## Kända problem
 
-### Anthropic API 5xx (Cloudflare 520)
-- Tillfälligt infrastrukturproblem hos Anthropic
+### OpenRouter API-fel
+- Tillfälliga infrastrukturproblem kan förekomma
 - Åtgärd: Vänta och försök igen
-- Optional: Lägg till retry-logik i `ai_parser.py`
+- Modell kan bytas i `OPENROUTER_MODEL` i `ai_parser.py`
 
 ## Deployment
 

@@ -63,7 +63,7 @@ async def parse_text(
         raise HTTPException(status_code=400, detail=guard.reason)
 
     try:
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        api_key = os.environ.get("OPENROUTER_API_KEY")
         if not api_key:
             raise HTTPException(status_code=500, detail="API key not configured")
 
@@ -113,7 +113,7 @@ async def parse_pdf(
             raise HTTPException(status_code=400, detail=guard.reason)
 
         # Parse with AI
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        api_key = os.environ.get("OPENROUTER_API_KEY")
         if not api_key:
             raise HTTPException(status_code=500, detail="API key not configured")
 
@@ -161,7 +161,7 @@ async def parse_url(
             raise HTTPException(status_code=400, detail=guard.reason)
 
         # Parse with AI
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        api_key = os.environ.get("OPENROUTER_API_KEY")
         if not api_key:
             raise HTTPException(status_code=500, detail="API key not configured")
 
@@ -254,7 +254,7 @@ async def parse_combined(
 
     # Parse with AI
     try:
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        api_key = os.environ.get("OPENROUTER_API_KEY")
         if not api_key:
             raise HTTPException(status_code=500, detail="API key not configured")
 
@@ -305,7 +305,7 @@ async def improve_tariffs(
         raise HTTPException(status_code=400, detail=f"Invalid tariff data: {str(e)}")
 
     try:
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        api_key = os.environ.get("OPENROUTER_API_KEY")
         if not api_key:
             raise HTTPException(status_code=500, detail="API key not configured")
 
@@ -367,7 +367,7 @@ async def stream_analysis(
                 return
 
             # Initialize parser
-            api_key = os.environ.get("ANTHROPIC_API_KEY")
+            api_key = os.environ.get("OPENROUTER_API_KEY")
             if not api_key:
                 yield f"data: {json.dumps({'type': 'error', 'message': 'API-nyckel saknas'})}\n\n"
                 return

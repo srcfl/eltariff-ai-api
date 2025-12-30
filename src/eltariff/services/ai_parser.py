@@ -1,4 +1,4 @@
-"""AI-powered tariff parser using Anthropic Claude."""
+"""AI-powered tariff parser using OpenRouter."""
 
 import json
 import os
@@ -7,7 +7,11 @@ from decimal import Decimal
 from typing import Any
 from uuid import uuid4
 
-import anthropic
+from openai import OpenAI
+
+# OpenRouter configuration
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+OPENROUTER_MODEL = "anthropic/claude-sonnet-4"  # Claude Sonnet 4 via OpenRouter
 
 from ..models.rise_schema import (
     ActivePeriod,
@@ -188,16 +192,19 @@ class TariffParser:
     """AI-powered parser for converting tariff documents to RISE format."""
 
     def __init__(self, api_key: str | None = None):
-        """Initialize the parser with Anthropic API key."""
-        self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+        """Initialize the parser with OpenRouter API key."""
+        self.api_key = api_key or os.environ.get("OPENROUTER_API_KEY")
         if not self.api_key:
-            raise ValueError("Anthropic API key required")
-        self.client = anthropic.Anthropic(api_key=self.api_key)
+            raise ValueError("OpenRouter API key required")
+        self.client = OpenAI(
+            base_url=OPENROUTER_BASE_URL,
+            api_key=self.api_key,
+        )
 
     async def parse_text(
         self, text: str, company_name: str | None = None
     ) -> TariffsResponse:
-        """Parse tariff information from text using Claude Sonnet 4.5."""
+        """Parse tariff information from text using Claude via OpenRouter."""
         # Truncate input if too long
         max_input_chars = 50000
         if len(text) > max_input_chars:
@@ -216,14 +223,16 @@ VIKTIGT:
 Tariffbeskrivning:
 {text}"""
 
-        response = self.client.messages.create(
-            model="claude-sonnet-4-5",
+        response = self.client.chat.completions.create(
+            model=OPENROUTER_MODEL,
             max_tokens=16000,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": user_prompt}],
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt},
+            ],
         )
 
-        content = response.content[0].text
+        content = response.choices[0].message.content
         return self._parse_response(content)
 
     def parse_text_streaming(
@@ -251,16 +260,21 @@ Tariffbeskrivning:
         content = ""
 
         try:
-            # Simple streaming without extended thinking
-            with self.client.messages.stream(
-                model="claude-sonnet-4-5",
+            # Streaming via OpenRouter/OpenAI format
+            stream = self.client.chat.completions.create(
+                model=OPENROUTER_MODEL,
                 max_tokens=16000,
-                system=SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": user_prompt}],
-            ) as stream:
-                # Just accumulate the text
-                for text_chunk in stream.text_stream:
-                    content += text_chunk
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": user_prompt},
+                ],
+                stream=True,
+            )
+
+            # Accumulate the text from stream
+            for chunk in stream:
+                if chunk.choices and chunk.choices[0].delta.content:
+                    content += chunk.choices[0].delta.content
 
             # Parse and yield final result
             if content:
@@ -306,14 +320,16 @@ INSTRUKTION: {instruction}
 
 Returnera den uppdaterade JSON:en (endast JSON, ingen förklaring):"""
 
-        response = self.client.messages.create(
-            model="claude-sonnet-4-5",
+        response = self.client.chat.completions.create(
+            model=OPENROUTER_MODEL,
             max_tokens=16000,
-            system=improve_system,
-            messages=[{"role": "user", "content": user_prompt}],
+            messages=[
+                {"role": "system", "content": improve_system},
+                {"role": "user", "content": user_prompt},
+            ],
         )
 
-        content = response.content[0].text
+        content = response.choices[0].message.content
         return self._parse_response(content)
 
     async def explain_tariff(self, tariff: Tariff) -> dict[str, Any]:
@@ -342,13 +358,13 @@ Formatera svaret som JSON:
   "tips": ["...", "..."]
 }}"""
 
-        response = self.client.messages.create(
-            model="claude-sonnet-4-5",
+        response = self.client.chat.completions.create(
+            model=OPENROUTER_MODEL,
             max_tokens=2048,
             messages=[{"role": "user", "content": user_prompt}],
         )
 
-        content = response.content[0].text
+        content = response.choices[0].message.content
         # Try to extract JSON from the response
         try:
             # Find JSON in response
