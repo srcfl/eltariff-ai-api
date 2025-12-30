@@ -81,4 +81,4 @@ Proprietär - Sourceful Labs AB
 ## Kontakt
 
 - Webb: [sourceful.energy](https://sourceful.energy)
-- E-post: hello@sourceful.energy
+- E-post: info@sourceful.energy
