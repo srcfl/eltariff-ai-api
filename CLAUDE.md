@@ -19,8 +19,8 @@ PYTHONPATH=src uv run uvicorn eltariff.main:app --reload
 # Installera beroenden
 uv sync
 
-# Deploy till Fly.io
-fly deploy
+# Deploy (Railway)
+railway up
 ```
 
 ## Projektstruktur
@@ -146,15 +146,7 @@ ELTARIFF_STORAGE_DIR=/path       # Optional: Var resultat sparas
 
 ## Deployment
 
-Fly.io med custom domain:
+Railway med custom domain:
 - App: `eltariff-ai-api`
 - Domain: `eltariff.sourceful.dev`
-- Se `DEPLOYMENT.md` för detaljer
-
-## Commit-historik (senaste)
-
-```
-c54c778 Ignorera data/ mappen (sparade resultat)
-bd3b67f Förbättra mobil-responsivitet
-d94f830 Förenklad AI + delningsfunktion + två lägen (skapa/visa)
-```
+- Källkod: https://github.com/srcfl/eltariff-ai-api
